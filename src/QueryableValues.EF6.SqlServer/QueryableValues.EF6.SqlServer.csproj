@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+	<Import Project="../../Version.xml" />
+	
 	<PropertyGroup>
 		<TargetFrameworks>net452;netstandard2.1</TargetFrameworks>
 		<RootNamespace>BlazarTech.QueryableValues</RootNamespace>
@@ -22,6 +23,21 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<None Include="..\..\docs\images\icon.png" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\docs\README.md" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\LICENSE" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
 	<ItemGroup Condition="'$(TargetFramework)'=='net452'">
 		<PackageReference Include="EntityFramework" Version="6.0.0" />
 		<Reference Include="System.Runtime.Caching" />
@@ -31,5 +47,4 @@
 		<PackageReference Include="EntityFramework" Version="6.3.0" />
 		<PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
 	</ItemGroup>
-
 </Project>
