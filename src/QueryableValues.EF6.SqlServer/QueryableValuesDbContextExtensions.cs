@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazarTech.QueryableValues.Serializers;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -12,13 +13,25 @@ namespace BlazarTech.QueryableValues
         internal const string InternalId = "qv-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk-";
 
         private static readonly ConcurrentDictionary<Type, Type> DbSetByDbContext = new ConcurrentDictionary<Type, Type>();
+
         private static readonly Func<Type, Type> DbSetByDbContextFactory = dbContextType =>
-            dbContextType
+        {
+            var entityType = dbContextType
                 .GetProperties()
                 .Select(i => i.PropertyType)
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(DbSet<>))
                 .Select(i => i.GenericTypeArguments[0])
                 .FirstOrDefault();
+
+            if (entityType is null)
+            {
+                throw new InvalidOperationException("QueryableValues can only work on a DbContext with at least one public DbSet<>.");
+            }
+
+            return entityType;
+        };
+
+        private static readonly XmlSerializer XmlSerializer = new XmlSerializer();
 
         private static readonly Func<IQueryable<object>, string, IQueryable<short>> InnerQueryShort = (dbSet, valuesXml) =>
             from i in dbSet
@@ -53,19 +66,31 @@ namespace BlazarTech.QueryableValues
             return query;
         }
 
-        public static IQueryable<short> AsQueryableValues(this DbContext dbContext, ICollection<short> values)
+        private static int GetCount<T>(IEnumerable<T> values)
         {
-            return AsQueryableValues(dbContext, "<R><V>1</V><V>3</V></R>", 2, InnerQueryShort);
+            if (values.TryGetNonEnumeratedCount(out int count))
+            {
+                return count;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
-        public static IQueryable<int> AsQueryableValues(this DbContext dbContext, ICollection<int> values)
+        public static IQueryable<short> AsQueryableValues(this DbContext dbContext, IEnumerable<short> values)
         {
-            return AsQueryableValues(dbContext, "<R><V>1</V><V>3</V></R>", 2, InnerQueryInt);
+            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryShort);
         }
 
-        public static IQueryable<long> AsQueryableValues(this DbContext dbContext, ICollection<long> values)
+        public static IQueryable<int> AsQueryableValues(this DbContext dbContext, IEnumerable<int> values)
         {
-            return AsQueryableValues(dbContext, "<R><V>1</V><V>3</V></R>", 2, InnerQueryLong);
+            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryInt);
+        }
+
+        public static IQueryable<long> AsQueryableValues(this DbContext dbContext, IEnumerable<long> values)
+        {
+            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryLong);
         }
     }
 }

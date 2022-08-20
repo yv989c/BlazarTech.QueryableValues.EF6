@@ -85,11 +85,7 @@ namespace BlazarTech.QueryableValues
 
                 sb.Append(originalCommandText.Substring(lastStartIndex));
 
-                entry = new InterceptedCommandData
-                {
-                    XmlParameterNames = xmlParameterNames,
-                    CommandText = sb.ToString()
-                };
+                entry = new InterceptedCommandData(sb.ToString(), xmlParameterNames);
 
                 var cachePolicy = new CacheItemPolicy
                 {
@@ -140,8 +136,14 @@ namespace BlazarTech.QueryableValues
 
         private class InterceptedCommandData
         {
-            public string CommandText { get; set; }
-            public HashSet<string> XmlParameterNames { get; set; }
+            public string CommandText { get; }
+            public HashSet<string> XmlParameterNames { get; }
+
+            public InterceptedCommandData(string commandText, HashSet<string> xmlParameterNames)
+            {
+                CommandText = commandText;
+                XmlParameterNames = xmlParameterNames;
+            }
         }
     }
 }
