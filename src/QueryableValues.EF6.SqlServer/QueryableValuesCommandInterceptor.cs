@@ -4,9 +4,7 @@ using System.Collections.Specialized;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Runtime.Caching;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BlazarTech.QueryableValues
@@ -41,51 +39,59 @@ namespace BlazarTech.QueryableValues
 
             if (entry is null)
             {
-                var sb = new StringBuilder();
-                var xmlParameterNames = new HashSet<string>();
-                var matches = Regex1.Matches(originalCommandText);
-                var lastStartIndex = 0;
+                var sb = StringBuilderPool.Shared.Get();
 
-                foreach (Match match in matches)
+                try
                 {
-                    var match2 = Regex2.Match(originalCommandText, match.Index);
-                    if (match2.Success)
+                    var xmlParameterNames = new HashSet<string>();
+                    var matches = Regex1.Matches(originalCommandText);
+                    var lastStartIndex = 0;
+
+                    foreach (Match match in matches)
                     {
-                        var valueParameterName = match.Groups["V"].Value;
-
-                        xmlParameterNames.Add(valueParameterName);
-
-                        sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
-                        sb.Append("SELECT TOP (@");
-                        sb.Append(match2.Groups["T"].Value);
-                        sb.Append(") I.value(");
-
-                        var dataType = match.Groups["DT"].Value;
-
-                        switch (dataType)
+                        var match2 = Regex2.Match(originalCommandText, match.Index);
+                        if (match2.Success)
                         {
-                            case "short":
-                                sb.Append("'. cast as xs:short?', 'smallint'");
-                                break;
-                            case "int":
-                                sb.Append("'. cast as xs:integer?', 'int'");
-                                break;
-                            case "long":
-                                sb.Append("'. cast as xs:integer?', 'bigint'");
-                                break;
-                            default:
-                                throw new NotImplementedException(dataType);
+                            var valueParameterName = match.Groups["V"].Value;
+
+                            xmlParameterNames.Add(valueParameterName);
+
+                            sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
+                            sb.Append("SELECT TOP (@");
+                            sb.Append(match2.Groups["T"].Value);
+                            sb.Append(") I.value(");
+
+                            var dataType = match.Groups["DT"].Value;
+
+                            switch (dataType)
+                            {
+                                case "short":
+                                    sb.Append("'. cast as xs:short?', 'smallint'");
+                                    break;
+                                case "int":
+                                    sb.Append("'. cast as xs:integer?', 'int'");
+                                    break;
+                                case "long":
+                                    sb.Append("'. cast as xs:integer?', 'bigint'");
+                                    break;
+                                default:
+                                    throw new NotImplementedException(dataType);
+                            }
+
+                            sb.Append(") AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
+
+                            lastStartIndex = match.Index + match.Length;
                         }
-
-                        sb.Append(") AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
-
-                        lastStartIndex = match.Index + match.Length;
                     }
+
+                    sb.Append(originalCommandText.Substring(lastStartIndex));
+
+                    entry = new InterceptedCommandData(sb.ToString(), xmlParameterNames);
                 }
-
-                sb.Append(originalCommandText.Substring(lastStartIndex));
-
-                entry = new InterceptedCommandData(sb.ToString(), xmlParameterNames);
+                finally
+                {
+                    StringBuilderPool.Shared.Return(sb);
+                }
 
                 var cachePolicy = new CacheItemPolicy
                 {

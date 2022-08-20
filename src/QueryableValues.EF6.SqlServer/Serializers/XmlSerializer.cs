@@ -11,25 +11,13 @@ using Microsoft.Extensions.ObjectPool;
 
 namespace BlazarTech.QueryableValues.Serializers
 {
-    internal sealed class XmlSerializer
+    internal sealed class XmlSerializer : ISerializer
     {
         private const int ValueBufferLength = 128;
 
         private static readonly char[] EmptyCharArray = new char[0];
 
         private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
-
-#if NETSTANDARD2_1_OR_GREATER || NET472_OR_GREATER || NET
-        private static readonly DefaultObjectPool<StringBuilder> StringBuilderPool = new DefaultObjectPool<StringBuilder>(
-            new StringBuilderPooledObjectPolicy
-            {
-                InitialCapacity = 512,
-                MaximumRetainedCapacity = 524288
-            });
-
-#else
-        private static readonly DummyStringBuilderPool StringBuilderPool = new DummyStringBuilderPool();
-#endif
 
         private static readonly ArrayPool<char> BufferPool = ArrayPool<char>.Shared;
 
@@ -51,7 +39,7 @@ namespace BlazarTech.QueryableValues.Serializers
 
             public WriterHelper(int bufferLength)
             {
-                Sb = StringBuilderPool.Get();
+                Sb = StringBuilderPool.Shared.Get();
                 Buffer = bufferLength > 0 ? BufferPool.Rent(bufferLength) : EmptyCharArray;
             }
 
@@ -62,7 +50,7 @@ namespace BlazarTech.QueryableValues.Serializers
                     BufferPool.Return(Buffer);
                 }
 
-                StringBuilderPool.Return(Sb);
+                StringBuilderPool.Shared.Return(Sb);
             }
         }
 
@@ -334,7 +322,7 @@ namespace BlazarTech.QueryableValues.Serializers
 
         public string Serialize(IEnumerable<char> values)
         {
-            var sb = StringBuilderPool.Get();
+            var sb = StringBuilderPool.Shared.Get();
             var buffer = BufferPool.Rent(1);
 
             try
@@ -362,7 +350,7 @@ namespace BlazarTech.QueryableValues.Serializers
             finally
             {
                 BufferPool.Return(buffer);
-                StringBuilderPool.Return(sb);
+                StringBuilderPool.Shared.Return(sb);
             }
         }
 
@@ -370,7 +358,7 @@ namespace BlazarTech.QueryableValues.Serializers
         {
             const int defaultBufferLength = 25;
 
-            var sb = StringBuilderPool.Get();
+            var sb = StringBuilderPool.Shared.Get();
 
             try
             {
@@ -420,16 +408,8 @@ namespace BlazarTech.QueryableValues.Serializers
             }
             finally
             {
-                StringBuilderPool.Return(sb);
+                StringBuilderPool.Shared.Return(sb);
             }
         }
-
-#if NET452
-        private class DummyStringBuilderPool
-        {
-            public StringBuilder Get() => new StringBuilder();
-            public void Return(StringBuilder _) { }
-        }
-#endif
     }
 }

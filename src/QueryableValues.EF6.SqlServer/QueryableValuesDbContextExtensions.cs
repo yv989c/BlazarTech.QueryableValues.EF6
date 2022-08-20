@@ -25,27 +25,27 @@ namespace BlazarTech.QueryableValues
 
             if (entityType is null)
             {
-                throw new InvalidOperationException("QueryableValues can only work on a DbContext with at least one public DbSet<>.");
+                throw new InvalidOperationException("QueryableValues only works on a DbContext with at least one public DbSet<>.");
             }
 
             return entityType;
         };
 
-        private static readonly XmlSerializer XmlSerializer = new XmlSerializer();
+        private static readonly ISerializer Serializer = new XmlSerializer();
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<short>> InnerQueryShort = (dbSet, valuesXml) =>
+        private static readonly Func<IQueryable<object>, string, IQueryable<short>> InnerQueryShort = (dbSet, serializedValues) =>
             from i in dbSet
-            where InternalId + "short" == valuesXml
+            where InternalId + "short" == serializedValues
             select (short)1;
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<int>> InnerQueryInt = (dbSet, valuesXml) =>
+        private static readonly Func<IQueryable<object>, string, IQueryable<int>> InnerQueryInt = (dbSet, serializedValues) =>
             from i in dbSet
-            where InternalId + "int" == valuesXml
+            where InternalId + "int" == serializedValues
             select 1;
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<long>> InnerQueryLong = (dbSet, valuesXml) =>
+        private static readonly Func<IQueryable<object>, string, IQueryable<long>> InnerQueryLong = (dbSet, serializedValues) =>
             from i in dbSet
-            where InternalId + "long" == valuesXml
+            where InternalId + "long" == serializedValues
             select 1L;
 
         static QueryableValuesDbContextExtensions()
@@ -55,13 +55,13 @@ namespace BlazarTech.QueryableValues
 
         private static IQueryable<T> AsQueryableValues<T>(
             DbContext dbContext,
-            string valuesXml,
+            string serializedValues,
             int valuesCount,
             Func<IQueryable<object>, string, IQueryable<T>> getInnerQuery)
         {
             var entityType = DbSetByDbContext.GetOrAdd(dbContext.GetType(), DbSetByDbContextFactory);
             var dbSet = (IQueryable<object>)dbContext.Set(entityType);
-            var innerQuery = getInnerQuery(dbSet, valuesXml);
+            var innerQuery = getInnerQuery(dbSet, serializedValues);
             var query = innerQuery.Take(() => valuesCount);
             return query;
         }
@@ -80,17 +80,17 @@ namespace BlazarTech.QueryableValues
 
         public static IQueryable<short> AsQueryableValues(this DbContext dbContext, IEnumerable<short> values)
         {
-            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryShort);
+            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryShort);
         }
 
         public static IQueryable<int> AsQueryableValues(this DbContext dbContext, IEnumerable<int> values)
         {
-            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryInt);
+            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryInt);
         }
 
         public static IQueryable<long> AsQueryableValues(this DbContext dbContext, IEnumerable<long> values)
         {
-            return AsQueryableValues(dbContext, XmlSerializer.Serialize(values), GetCount(values), InnerQueryLong);
+            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryLong);
         }
     }
 }
