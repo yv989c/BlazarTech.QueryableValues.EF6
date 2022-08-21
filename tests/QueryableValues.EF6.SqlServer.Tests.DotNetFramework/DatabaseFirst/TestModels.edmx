@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="TestModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="MyEntity">
+          <Key>
+            <PropertyRef Name="MyEntityID" />
+          </Key>
+          <Property Name="MyEntityID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PropA" Type="int" Nullable="false" />
+          <Property Name="PropB" Type="bigint" Nullable="false" />
+          <Property Name="PropC" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PropD" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="PropE" Type="date" />
+        </EntityType>
+        <EntityContainer Name="TestModelStoreContainer">
+          <EntitySet Name="MyEntity" EntityType="Self.MyEntity" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TestModels" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="MyEntity">
+          <Key>
+            <PropertyRef Name="MyEntityID" />
+          </Key>
+          <Property Name="MyEntityID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PropA" Type="Int32" Nullable="false" />
+          <Property Name="PropB" Type="Int64" Nullable="false" />
+          <Property Name="PropC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PropD" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="PropE" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityContainer Name="TestDbContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="MyEntity" EntityType="Self.MyEntity" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TestModelStoreContainer" CdmEntityContainer="TestDbContext">
+          <EntitySetMapping Name="MyEntity">
+            <EntityTypeMapping TypeName="TestModels.MyEntity">
+              <MappingFragment StoreEntitySet="MyEntity">
+                <ScalarProperty Name="MyEntityID" ColumnName="MyEntityID" />
+                <ScalarProperty Name="PropA" ColumnName="PropA" />
+                <ScalarProperty Name="PropB" ColumnName="PropB" />
+                <ScalarProperty Name="PropC" ColumnName="PropC" />
+                <ScalarProperty Name="PropD" ColumnName="PropD" />
+                <ScalarProperty Name="PropE" ColumnName="PropE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

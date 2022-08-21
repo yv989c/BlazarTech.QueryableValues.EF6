@@ -52,14 +52,23 @@ namespace BlazarTech.QueryableValues
                         var match2 = Regex2.Match(originalCommandText, match.Index);
                         if (match2.Success)
                         {
+                            var topParameterName = match2.Groups["T"].Value;
+                            //var useTop = Convert.ToInt64(sqlCommand.Parameters[topParameterName].Value) >= 0;
+
                             var valueParameterName = match.Groups["V"].Value;
 
                             xmlParameterNames.Add(valueParameterName);
 
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
-                            sb.Append("SELECT TOP (@");
-                            sb.Append(match2.Groups["T"].Value);
-                            sb.Append(") I.value(");
+                            sb.Append("SELECT ");
+
+                            //// todo: fix cache bug. the use or lack of top must be part of the cache key... somehow...
+                            //if (useTop)
+                            //{
+                            //    sb.Append("TOP (@").Append(topParameterName).Append(") ");
+                            //}
+
+                            sb.Append("I.value(");
 
                             var dataType = match.Groups["DT"].Value;
 
