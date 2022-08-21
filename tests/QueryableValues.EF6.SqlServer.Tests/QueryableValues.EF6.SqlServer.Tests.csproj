@@ -1,0 +1,95 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>BlazarTech.QueryableValues</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
+		<PackageReference Include="xunit" Version="2.4.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="3.1.2">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+	  <Compile Update="DbContext\DatabaseFirst\TestModel.Context.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>TestModel.Context.tt</DependentUpon>
+	  </Compile>
+	  <Compile Update="DbContext\DatabaseFirst\TestModel.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>TestModel.tt</DependentUpon>
+	  </Compile>
+	  <Compile Update="DbContext\DatabaseFirst\TestModel.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>TestModel.edmx</DependentUpon>
+	  </Compile>
+	</ItemGroup>-->
+
+	<!--<ItemGroup>
+	  <EntityDeploy Update="DbContext\DatabaseFirst\TestModel.edmx">
+	    <Generator>EntityModelCodeGenerator</Generator>
+	    <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </EntityDeploy>
+	</ItemGroup>-->
+
+	<!--<ItemGroup>
+		<EntityDeploy Include="DbContext\DatabaseFirst\TestModel.edmx">
+			<Generator>EntityModelCodeGenerator</Generator>
+			<LastGenOutput>TestModel.Designer.cs</LastGenOutput>
+		</EntityDeploy>
+		<None Include="DbContext\DatabaseFirst\TestModel.edmx.diagram">
+			<DependentUpon>TestModel.edmx</DependentUpon>
+		</None>
+		<Content Include="DbContext\DatabaseFirst\TestModel.Context.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<DependentUpon>Model1.edmx</DependentUpon>
+			<LastGenOutput>TestModel.Context.cs</LastGenOutput>
+			<CustomToolNamespace>GeneratedDbContext</CustomToolNamespace>
+		</Content>
+		<Content Include="DbContext\DatabaseFirst\TestModel.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<DependentUpon>TestModel.edmx</DependentUpon>
+			<LastGenOutput>TestModel.cs</LastGenOutput>
+			<CustomToolNamespace>GeneratedDbContext</CustomToolNamespace>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="DbContext\DatabaseFirst\TestModel.Context.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>TestModel.Context.tt</DependentUpon>
+	  </Compile>
+	  <Compile Update="DbContext\DatabaseFirst\TestModel.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>TestModel.tt</DependentUpon>
+	  </Compile>
+	</ItemGroup>-->
+
+</Project>
