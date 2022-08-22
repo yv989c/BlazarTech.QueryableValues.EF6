@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace BlazarTech.QueryableValues
 {
+    /// <summary>
+    /// Extension methods provided by QueryableValues on the <see cref="DbContext"/> class.
+    /// </summary>
     public static class QueryableValuesDbContextExtensions
     {
         internal const string InternalId = "qv-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk-";
@@ -78,18 +81,56 @@ namespace BlazarTech.QueryableValues
             }
         }
 
+        private static void ThrowIfNull(object @object, string name)
+        {
+            if (@object is null)
+            {
+                throw new ArgumentNullException(name);
+            }
+        }
+
+        /// <summary>
+        /// Allows an <see cref="IEnumerable{Int16}">IEnumerable&lt;short&gt;</see> to be composed in an Entity Framework query.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
+        /// <param name="values">The sequence of values to compose.</param>
+        /// <returns>An <see cref="IQueryable{Int16}">IQueryable&lt;short&gt;</see> that can be composed with other entities in the query.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public static IQueryable<short> AsQueryableValues(this DbContext dbContext, IEnumerable<short> values)
         {
+            ThrowIfNull(dbContext, nameof(dbContext));
+            ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryShort);
         }
 
+        /// <summary>
+        /// Allows an <see cref="IEnumerable{Int32}">IEnumerable&lt;int&gt;</see> to be composed in an Entity Framework query.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
+        /// <param name="values">The sequence of values to compose.</param>
+        /// <returns>An <see cref="IQueryable{Int32}">IQueryable&lt;int&gt;</see> that can be composed with other entities in the query.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public static IQueryable<int> AsQueryableValues(this DbContext dbContext, IEnumerable<int> values)
         {
+            ThrowIfNull(dbContext, nameof(dbContext));
+            ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryInt);
         }
 
+        /// <summary>
+        /// Allows an <see cref="IEnumerable{Int64}">IEnumerable&lt;long&gt;</see> to be composed in an Entity Framework query.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
+        /// <param name="values">The sequence of values to compose.</param>
+        /// <returns>An <see cref="IQueryable{Int64}">IQueryable&lt;long&gt;</see> that can be composed with other entities in the query.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public static IQueryable<long> AsQueryableValues(this DbContext dbContext, IEnumerable<long> values)
         {
+            ThrowIfNull(dbContext, nameof(dbContext));
+            ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryLong);
         }
     }

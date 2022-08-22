@@ -8,33 +8,70 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
     public static class TestUtil
     {
-        public static IEnumerable<int> GetSequenceOfInt32(int n, bool withCount)
+        public static List<T> ToList<T>(this IEnumerable<T> sequence, int capacity)
         {
-            var random = new Random(1);
+            var list = new List<T>(capacity);
+            list.AddRange(sequence);
+            return list;
+        }
 
-            if (withCount)
+        public static IEnumerable<short> GetSequenceOfInt16(int numberOfElements, bool withCount)
+        {
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<short> getSequence()
             {
-                var result = new List<int>(n);
+                yield return 0;
+                yield return short.MinValue;
+                yield return short.MaxValue;
 
-                for (var i = 0; i < n; i++)
+                var random = new Random(1);
+
+                for (var i = 0; i < numberOfElements - 3; i++)
                 {
-                    result.Add(random.Next());
-                }
-
-                return result;
-            }
-            else
-            {
-                return getSequence();
-            }
-
-            IEnumerable<int> getSequence()
-            {
-                for (var i = 0; i < n; i++)
-                {
-                    yield return random.Next();
+                    yield return (short)random.Next(short.MinValue, short.MaxValue);
                 }
             }
         }
+
+        public static IEnumerable<int> GetSequenceOfInt32(int numberOfElements, bool withCount)
+        {
+
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<int> getSequence()
+            {
+                yield return 0;
+                yield return int.MinValue;
+                yield return int.MaxValue;
+
+                var random = new Random(1);
+
+                for (var i = 0; i < numberOfElements - 3; i++)
+                {
+                    yield return random.Next(int.MinValue, int.MaxValue);
+                }
+            }
+        }
+
+        public static IEnumerable<long> GetSequenceOfInt64(int numberOfElements, bool withCount)
+        {
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<long> getSequence()
+            {
+                yield return 0;
+                yield return long.MinValue;
+                yield return long.MaxValue;
+
+                var random = new Random(1);
+
+                for (var i = 0; i < numberOfElements - 3; i++)
+                {
+                    yield return random.Next(int.MinValue, int.MaxValue);
+                }
+            }
+        }
+
     }
 }

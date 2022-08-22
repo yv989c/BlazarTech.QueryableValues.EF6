@@ -67,10 +67,9 @@
       <DependentUpon>TestModels.edmx</DependentUpon>
     </Compile>
     <Compile Include="InfrastructureTests.cs" />
-    <Compile Include="CodeFirst\SimpleQueryTests.cs" />
+    <Compile Include="SimpleQueryTests.cs" />
     <Compile Include="InvalidDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleQueryTestsData.cs" />
     <Compile Include="TestUtil.cs" />
   </ItemGroup>
   <ItemGroup>
