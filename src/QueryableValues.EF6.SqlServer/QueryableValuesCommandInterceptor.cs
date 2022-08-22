@@ -61,6 +61,7 @@ namespace BlazarTech.QueryableValues
 
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
                             sb.Append("SELECT ");
+                            sb.Append("TOP (@").Append(topParameterName).Append(") ");
 
                             //// todo: fix cache bug. the use or lack of top must be part of the cache key... somehow...
                             //if (useTop)

@@ -74,7 +74,7 @@ namespace BlazarTech.QueryableValues
             }
             else
             {
-                return -1;
+                return int.MaxValue;
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,52 +13,36 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Int32SequenceEmpty(bool useCount)
+        public async Task Int32Empty(bool withCount)
         {
-            var sequence = TestUtil.GetInt32Sequence(0);
-
-            if (useCount)
-            {
-                sequence = sequence.ToList();
-            }
-
+            var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
             using var db = new TestDbContext();
-            var result = db.AsQueryableValues(sequence).ToList();
+            var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
 
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Int32SequenceFew(bool useCount)
+        public async Task Int32Some(bool withCount)
         {
-            var sequence = TestUtil.GetInt32Sequence(6);
-
-            if (useCount)
-            {
-                sequence = sequence.ToList();
-            }
-
+            var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
             using var db = new TestDbContext();
-            var result = db.AsQueryableValues(sequence).ToList();
+            var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
 
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Int32SequenceMany(bool useCount)
+        public async Task Int32Many(bool withCount)
         {
-            var sequence = TestUtil.GetInt32Sequence(1000);
-
-            if (useCount)
-            {
-                sequence = sequence.ToList();
-            }
-
+            var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
             using var db = new TestDbContext();
-            var result = db.AsQueryableValues(sequence).ToList();
+            var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
+
+
     }
 }
