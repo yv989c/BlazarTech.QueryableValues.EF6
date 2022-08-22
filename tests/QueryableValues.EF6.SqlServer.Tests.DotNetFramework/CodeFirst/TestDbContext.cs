@@ -13,10 +13,22 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
         {
         }
 
-        public DbSet<MyEntity> MyEntities { get; set; }
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //modelBuilder.Conventions.Remove(new System.Data.Entity.ModelConfiguration.Conventions.PluralizingEntitySetNameConvention());
+            //modelBuilder.Conventions.Remove(new System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention());
+
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<MyEntity2>()
+                .ToTable("MyEntity")
+                .HasKey(k => k.MyEntityID);
+        }
+
+        public DbSet<MyEntity2> MyEntity { get; set; }
     }
 
-    public partial class MyEntity
+    public class MyEntity2
     {
         public int MyEntityID { get; set; }
         public int PropA { get; set; }

@@ -10,35 +10,40 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
 {
     public class SimpleQueryTests
     {
+        public static IEnumerable<object[]> Data
+        {
+            get
+            {
+                yield return new object[] { new DatabaseFirst.TestDbContext(), false };
+                yield return new object[] { new DatabaseFirst.TestDbContext(), true };
+                yield return new object[] { new CodeFirst.TestDbContext(), false };
+                yield return new object[] { new CodeFirst.TestDbContext(), true };
+            }
+        }
+
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Int32Empty(bool withCount)
+        [MemberData(nameof(Data))]
+        public async Task Int32Empty(DbContext db, bool withCount)
         {
             var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
-            using var db = new TestDbContext();
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Int32Some(bool withCount)
+        [MemberData(nameof(Data))]
+        public async Task Int32Some(DbContext db, bool withCount)
         {
             var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
-            using var db = new TestDbContext();
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Int32Many(bool withCount)
+        [MemberData(nameof(Data))]
+        public async Task Int32Many(DbContext db, bool withCount)
         {
             var sequence = TestUtil.GetSequenceOfInt32(0, withCount);
-            using var db = new TestDbContext();
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
         }
