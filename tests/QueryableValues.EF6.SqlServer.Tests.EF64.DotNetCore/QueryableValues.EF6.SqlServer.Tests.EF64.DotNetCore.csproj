@@ -3,9 +3,8 @@
 	<Import Project="..\SharedTestProjectProperties.xml" />
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
 		<RootNamespace>BlazarTech.QueryableValues</RootNamespace>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>

@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryableValues.EF6.SqlServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryableValues.EF6.SqlServer.Tests.EF64", "tests\QueryableValues.EF6.SqlServer.Tests.EF64\QueryableValues.EF6.SqlServer.Tests.EF64.csproj", "{B69625DE-1122-47B7-AAA4-F6F6FFFDB28E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueryableValues.EF6.SqlServer.Tests.EF64.Net60", "tests\QueryableValues.EF6.SqlServer.Tests.EF64.Net60\QueryableValues.EF6.SqlServer.Tests.EF64.Net60.csproj", "{089C0DA6-163E-4235-937D-75C013D223E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore", "tests\QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore\QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore.csproj", "{A0D2A4DB-C029-45A3-B318-5BBC5DEC1CED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +53,10 @@ Global
 		{B69625DE-1122-47B7-AAA4-F6F6FFFDB28E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B69625DE-1122-47B7-AAA4-F6F6FFFDB28E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B69625DE-1122-47B7-AAA4-F6F6FFFDB28E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{089C0DA6-163E-4235-937D-75C013D223E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{089C0DA6-163E-4235-937D-75C013D223E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{089C0DA6-163E-4235-937D-75C013D223E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{089C0DA6-163E-4235-937D-75C013D223E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0D2A4DB-C029-45A3-B318-5BBC5DEC1CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0D2A4DB-C029-45A3-B318-5BBC5DEC1CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0D2A4DB-C029-45A3-B318-5BBC5DEC1CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0D2A4DB-C029-45A3-B318-5BBC5DEC1CED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
