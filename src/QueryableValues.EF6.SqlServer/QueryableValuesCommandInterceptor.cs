@@ -18,7 +18,7 @@ namespace BlazarTech.QueryableValues
                 { "CacheMemoryLimitMegabytes", "10" }
             });
 
-        private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z]{3,})'\s*=\s*@(?<V>.+?)\s*(?=\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex Regex2 = new Regex(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
         private static void TransformCommand(DbCommand command)
