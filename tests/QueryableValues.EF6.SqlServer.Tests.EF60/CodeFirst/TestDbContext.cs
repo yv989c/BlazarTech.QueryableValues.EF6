@@ -25,7 +25,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
                 .HasKey(k => k.MyEntityID);
         }
 
-        public DbSet<MyEntity2> MyEntity { get; set; }
+        public DbSet<MyEntity2> MyEntity { get; set; } = default!;
     }
 
     public class MyEntity2
@@ -33,7 +33,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
         public int MyEntityID { get; set; }
         public int PropA { get; set; }
         public long PropB { get; set; }
-        public string PropC { get; set; }
+        public string PropC { get; set; } = default!;
         public System.DateTime PropD { get; set; }
         public Nullable<System.DateTime> PropE { get; set; }
     }

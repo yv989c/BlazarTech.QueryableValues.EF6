@@ -13,6 +13,14 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             {
                 var numberOfElementsList = new[] { 0, 6, 1000 };
 
+
+#if NET5_0_OR_GREATER
+                foreach (var numberOfElements in numberOfElementsList)
+                {
+                    yield return new object[] { new CodeFirst.TestDbContext(), numberOfElements, false };
+                    yield return new object[] { new CodeFirst.TestDbContext(), numberOfElements, true };
+                }
+#else
                 foreach (var numberOfElements in numberOfElementsList)
                 {
                     yield return new object[] { new CodeFirst.TestDbContext(), numberOfElements, false };
@@ -24,6 +32,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                     yield return new object[] { new DatabaseFirst.TestDbContext(), numberOfElements, false };
                     yield return new object[] { new DatabaseFirst.TestDbContext(), numberOfElements, true };
                 }
+#endif
             }
         }
 
