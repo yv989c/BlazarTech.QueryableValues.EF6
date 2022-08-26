@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
@@ -13,6 +11,25 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             var list = new List<T>(capacity);
             list.AddRange(sequence);
             return list;
+        }
+
+        public static IEnumerable<byte> GetSequenceOfByte(int numberOfElements, bool withCount)
+        {
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<byte> getSequence()
+            {
+                yield return 0;
+                yield return byte.MinValue;
+                yield return byte.MaxValue;
+
+                var random = new Random(1);
+
+                for (var i = 0; i < numberOfElements - 3; i++)
+                {
+                    yield return (byte)random.Next(byte.MinValue, byte.MaxValue);
+                }
+            }
         }
 
         public static IEnumerable<short> GetSequenceOfInt16(int numberOfElements, bool withCount)
@@ -73,5 +90,54 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
+        public static IEnumerable<string> GetSequenceOfString(int numberOfElements, bool withCount, bool unicode)
+        {
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<string> getSequence()
+            {
+                var random = new Random(1);
+                var sb = new StringBuilder();
+
+                for (var i = 0; i < numberOfElements; i++)
+                {
+                    sb.Clear();
+                    var wordLength = random.Next(0, 50);
+
+                    for (var x = 0; x < wordLength; x++)
+                    {
+                        var c = (char)random.Next(32, unicode ? short.MaxValue : 255);
+
+                        if (char.IsControl(c))
+                        {
+                            continue;
+                        }
+
+                        sb.Append(c);
+                    }
+
+                    yield return sb.ToString();
+                }
+            }
+        }
+
+        public static IEnumerable<Guid> GetSequenceOfGuid(int numberOfElements, bool withCount)
+        {
+            return withCount ? getSequence().ToList(numberOfElements) : getSequence();
+
+            IEnumerable<Guid> getSequence()
+            {
+                yield return Guid.Empty;
+
+                var random = new Random(1);
+                var bytes = new byte[16];
+
+                for (var i = 0; i < numberOfElements - 1; i++)
+                {
+                    random.NextBytes(bytes);
+                    yield return new Guid(bytes);
+                }
+            }
+        }
     }
 }

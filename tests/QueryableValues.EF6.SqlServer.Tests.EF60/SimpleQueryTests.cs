@@ -38,6 +38,18 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 
         [Theory]
         [MemberData(nameof(Data))]
+        public async Task Byte(DbContext db, int numberOfElements, bool withCount)
+        {
+            using (db)
+            {
+                var sequence = TestUtil.GetSequenceOfByte(numberOfElements, withCount);
+                var result = await db.AsQueryableValues(sequence).ToListAsync();
+                Assert.Equal(sequence, result);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
         public async Task Int16(DbContext db, int numberOfElements, bool withCount)
         {
             using (db)
@@ -67,6 +79,42 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             using (db)
             {
                 var sequence = TestUtil.GetSequenceOfInt64(numberOfElements, withCount);
+                var result = await db.AsQueryableValues(sequence).ToListAsync();
+                Assert.Equal(sequence, result);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public async Task String(DbContext db, int numberOfElements, bool withCount)
+        {
+            using (db)
+            {
+                var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, false);
+                var result = await db.AsQueryableValues(sequence, isUnicode: false).ToListAsync();
+                Assert.Equal(sequence, result);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public async Task StringUnicode(DbContext db, int numberOfElements, bool withCount)
+        {
+            using (db)
+            {
+                var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, true);
+                var result = await db.AsQueryableValues(sequence, isUnicode: true).ToListAsync();
+                Assert.Equal(sequence, result);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public async Task Guid(DbContext db, int numberOfElements, bool withCount)
+        {
+            using (db)
+            {
+                var sequence = TestUtil.GetSequenceOfGuid(numberOfElements, withCount);
                 var result = await db.AsQueryableValues(sequence).ToListAsync();
                 Assert.Equal(sequence, result);
             }
