@@ -199,7 +199,6 @@ namespace BlazarTech.QueryableValues.Serializers
                 }
                 else if (
                     i + 1 < length &&
-                    // todo: Do I have to worry about endianness here?
                     XmlConvert.IsXmlSurrogatePair(chars[i + 1], chars[i])
                     )
                 {

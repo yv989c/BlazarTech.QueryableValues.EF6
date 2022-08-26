@@ -18,7 +18,7 @@ namespace BlazarTech.QueryableValues
                 { "CacheMemoryLimitMegabytes", "10" }
             });
 
-        private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z\-]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex Regex2 = new Regex(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
         private static void TransformCommand(DbCommand command)
@@ -53,7 +53,6 @@ namespace BlazarTech.QueryableValues
                         if (match2.Success)
                         {
                             var topParameterName = match2.Groups["T"].Value;
-                            //var useTop = Convert.ToInt64(sqlCommand.Parameters[topParameterName].Value) >= 0;
 
                             var valueParameterName = match.Groups["V"].Value;
 
@@ -62,33 +61,47 @@ namespace BlazarTech.QueryableValues
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
                             sb.Append("SELECT ");
                             sb.Append("TOP (@").Append(topParameterName).Append(") ");
-
-                            //// todo: fix cache bug. the use or lack of top must be part of the cache key... somehow...
-                            //if (useTop)
-                            //{
-                            //    sb.Append("TOP (@").Append(topParameterName).Append(") ");
-                            //}
-
-                            sb.Append("I.value(");
+                            sb.Append("I.value('. cast as xs:");
 
                             var dataType = match.Groups["DT"].Value;
+                            string xmlType, sqlType;
 
                             switch (dataType)
                             {
-                                case "short":
-                                    sb.Append("'. cast as xs:short?', 'smallint'");
+                                case QueryTypeIdentifier.Byte:
+                                    xmlType = "unsignedByte";
+                                    sqlType = "tinyint";
                                     break;
-                                case "int":
-                                    sb.Append("'. cast as xs:integer?', 'int'");
+                                case QueryTypeIdentifier.Short:
+                                    xmlType = "short";
+                                    sqlType = "smallint";
                                     break;
-                                case "long":
-                                    sb.Append("'. cast as xs:integer?', 'bigint'");
+                                case QueryTypeIdentifier.Int:
+                                    xmlType = "integer";
+                                    sqlType = "int";
+                                    break;
+                                case QueryTypeIdentifier.Long:
+                                    xmlType = "integer";
+                                    sqlType = "bigint";
+                                    break;
+                                case QueryTypeIdentifier.String:
+                                    xmlType = "string";
+                                    sqlType = "varchar(max)";
+                                    break;
+                                case QueryTypeIdentifier.StringUnicode:
+                                    xmlType = "string";
+                                    sqlType = "nvarchar(max)";
+                                    break;
+                                case QueryTypeIdentifier.Guid:
+                                    xmlType = "string";
+                                    sqlType = "uniqueidentifier";
                                     break;
                                 default:
                                     throw new NotImplementedException(dataType);
                             }
 
-                            sb.Append(") AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
+                            sb.Append(xmlType).Append("?', '").Append(sqlType);
+                            sb.Append("') AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
 
                             lastStartIndex = match.Index + match.Length;
                         }
