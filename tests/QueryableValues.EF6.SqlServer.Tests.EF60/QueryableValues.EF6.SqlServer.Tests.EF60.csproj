@@ -51,6 +51,7 @@
     <Compile Include="DatabaseFirst\MyEntity.cs">
       <DependentUpon>TestModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseFirst\TestDbContext.Custom.cs" />
     <Compile Include="DatabaseFirst\TestModels.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -67,6 +68,8 @@
       <DependentUpon>TestModels.edmx</DependentUpon>
     </Compile>
     <Compile Include="InfrastructureTests.cs" />
+    <Compile Include="ITestDbContext.cs" />
+    <Compile Include="JoinQueryTests.cs" />
     <Compile Include="SimpleQueryTests.cs" />
     <Compile Include="InvalidDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
