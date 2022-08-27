@@ -2,5 +2,13 @@
 {
     public partial class TestDbContext : ITestDbContext
     {
+        public TestDbContext(string connectionString) : base(connectionString)
+        {
+        }
+
+        public static TestDbContext Create()
+        {
+            return new TestDbContext(DbUtil.GetConnectionString(true));
+        }
     }
 }

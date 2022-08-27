@@ -47,8 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertUtil.cs" />
     <Compile Include="CodeFirst\TestDbContext.cs" />
-    <Compile Include="DatabaseFirst\MyEntity.cs">
+    <Compile Include="DatabaseFirst\TestDataEntity.cs">
       <DependentUpon>TestModels.tt</DependentUpon>
     </Compile>
     <Compile Include="DatabaseFirst\TestDbContext.Custom.cs" />
@@ -67,10 +68,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TestModels.edmx</DependentUpon>
     </Compile>
+    <Compile Include="DbContextFixture.cs" />
+    <Compile Include="DbUtil.cs" />
     <Compile Include="InfrastructureTests.cs" />
     <Compile Include="ITestDbContext.cs" />
     <Compile Include="JoinQueryTests.cs" />
-    <Compile Include="SimpleQueryTests.cs" />
+    <Compile Include="SequenceQueryTests.cs" />
     <Compile Include="InvalidDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtil.cs" />

@@ -25,6 +25,6 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.DatabaseFirst
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<MyEntity> MyEntity { get; set; }
+        public virtual DbSet<TestDataEntity> TestData { get; set; }
     }
 }

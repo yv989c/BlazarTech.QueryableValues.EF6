@@ -4,8 +4,16 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
 {
     public class TestDbContext : DbContext, ITestDbContext
     {
-        public TestDbContext() : base("data source=.\\SQLEXPRESS;initial catalog=Test;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework")
+        public DbSet<DatabaseFirst.TestDataEntity> TestData { get; set; } = null!;
+
+        public TestDbContext(string connectionString) : base(connectionString)
         {
+            Database.SetInitializer<TestDbContext>(null);
+        }
+
+        public static TestDbContext Create()
+        {
+            return new TestDbContext(DbUtil.GetConnectionString(false));
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -14,22 +22,16 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
             //modelBuilder.Conventions.Remove(new System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention());
 
             modelBuilder.HasDefaultSchema("dbo");
+              
+            var entity = modelBuilder.Entity<DatabaseFirst.TestDataEntity>()
+                .ToTable("TestData")
+                .HasKey(k => k.Id);
 
-            modelBuilder.Entity<DatabaseFirst.MyEntity>()
-                .ToTable("MyEntity")
-                .HasKey(k => k.MyEntityID);
+            //entity.Property(p => p.CharValue).HasColumnType("char");
+            //entity.Property(p => p.CharUnicodeValue).HasColumnType("nchar");
+            entity.Property(p => p.StringValue).HasColumnType("varchar").HasMaxLength(50).IsUnicode(false);
+            entity.Property(p => p.StringUnicodeValue).HasColumnType("nvarchar").HasMaxLength(50).IsUnicode(true);
+            entity.Property(p => p.DateTimeValue).HasColumnType("datetime2");
         }
-
-        public DbSet<DatabaseFirst.MyEntity> MyEntity { get; set; } = default!;
     }
-
-    //public class MyEntity2 : IMyEntity
-    //{
-    //    public int MyEntityID { get; set; }
-    //    public int PropA { get; set; }
-    //    public long PropB { get; set; }
-    //    public string PropC { get; set; } = default!;
-    //    public System.DateTime PropD { get; set; }
-    //    public Nullable<System.DateTime> PropE { get; set; }
-    //}
 }

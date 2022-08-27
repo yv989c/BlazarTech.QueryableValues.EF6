@@ -4,55 +4,78 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TestModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="MyEntity">
+    <Schema Namespace="TestModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="TestData">
           <Key>
-            <PropertyRef Name="MyEntityID" />
+            <PropertyRef Name="Id" />
           </Key>
-          <Property Name="MyEntityID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="PropA" Type="int" Nullable="false" />
-          <Property Name="PropB" Type="bigint" Nullable="false" />
-          <Property Name="PropC" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="PropD" Type="datetime2" Precision="7" Nullable="false" />
-          <Property Name="PropE" Type="date" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BoolValue" Type="bit" Nullable="false" />
+          <Property Name="ByteValue" Type="tinyint" Nullable="false" />
+          <Property Name="Int16Value" Type="smallint" Nullable="false" />
+          <Property Name="Int32Value" Type="int" Nullable="false" />
+          <Property Name="Int64Value" Type="bigint" Nullable="false" />
+          <Property Name="DecimalValue" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="SingleValue" Type="real" Nullable="false" />
+          <Property Name="DoubleValue" Type="float" Nullable="false" />
+          <Property Name="StringValue" Type="varchar" MaxLength="50" />
+          <Property Name="StringUnicodeValue" Type="nvarchar" MaxLength="50" />
+          <Property Name="DateTimeValue" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="DateTimeOffsetValue" Type="datetimeoffset" Precision="7" Nullable="false" />
+          <Property Name="GuidValue" Type="uniqueidentifier" Nullable="false" />
         </EntityType>
         <EntityContainer Name="TestModelStoreContainer">
-          <EntitySet Name="MyEntity" EntityType="Self.MyEntity" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TestData" EntityType="Self.TestData" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TestModels" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="MyEntity">
-          <Key>
-            <PropertyRef Name="MyEntityID" />
-          </Key>
-          <Property Name="MyEntityID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PropA" Type="Int32" Nullable="false" />
-          <Property Name="PropB" Type="Int64" Nullable="false" />
-          <Property Name="PropC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="PropD" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="PropE" Type="DateTime" Precision="0" />
-        </EntityType>
         <EntityContainer Name="TestDbContext" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="MyEntity" EntityType="Self.MyEntity" />
+          <EntitySet Name="TestData" EntityType="TestModels.TestDataEntity" />
         </EntityContainer>
+        <EntityType Name="TestDataEntity">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BoolValue" Type="Boolean" Nullable="false" />
+          <Property Name="ByteValue" Type="Byte" Nullable="false" />
+          <Property Name="Int16Value" Type="Int16" Nullable="false" />
+          <Property Name="Int32Value" Type="Int32" Nullable="false" />
+          <Property Name="Int64Value" Type="Int64" Nullable="false" />
+          <Property Name="DecimalValue" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="SingleValue" Type="Single" Nullable="false" />
+          <Property Name="DoubleValue" Type="Double" Nullable="false" />
+          <Property Name="StringValue" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="StringUnicodeValue" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DateTimeValue" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="DateTimeOffsetValue" Type="DateTimeOffset" Nullable="false" Precision="7" />
+          <Property Name="GuidValue" Type="Guid" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="TestModelStoreContainer" CdmEntityContainer="TestDbContext">
-          <EntitySetMapping Name="MyEntity">
-            <EntityTypeMapping TypeName="TestModels.MyEntity">
-              <MappingFragment StoreEntitySet="MyEntity">
-                <ScalarProperty Name="MyEntityID" ColumnName="MyEntityID" />
-                <ScalarProperty Name="PropA" ColumnName="PropA" />
-                <ScalarProperty Name="PropB" ColumnName="PropB" />
-                <ScalarProperty Name="PropC" ColumnName="PropC" />
-                <ScalarProperty Name="PropD" ColumnName="PropD" />
-                <ScalarProperty Name="PropE" ColumnName="PropE" />
+        <EntitySetMapping Name="TestData">
+            <EntityTypeMapping TypeName="TestModels.TestDataEntity">
+              <MappingFragment StoreEntitySet="TestData">
+                <ScalarProperty Name="GuidValue" ColumnName="GuidValue" />
+                <ScalarProperty Name="DateTimeOffsetValue" ColumnName="DateTimeOffsetValue" />
+                <ScalarProperty Name="DateTimeValue" ColumnName="DateTimeValue" />
+                <ScalarProperty Name="StringUnicodeValue" ColumnName="StringUnicodeValue" />
+                <ScalarProperty Name="StringValue" ColumnName="StringValue" />
+                <ScalarProperty Name="DoubleValue" ColumnName="DoubleValue" />
+                <ScalarProperty Name="SingleValue" ColumnName="SingleValue" />
+                <ScalarProperty Name="DecimalValue" ColumnName="DecimalValue" />
+                <ScalarProperty Name="Int64Value" ColumnName="Int64Value" />
+                <ScalarProperty Name="Int32Value" ColumnName="Int32Value" />
+                <ScalarProperty Name="Int16Value" ColumnName="Int16Value" />
+                <ScalarProperty Name="ByteValue" ColumnName="ByteValue" />
+                <ScalarProperty Name="BoolValue" ColumnName="BoolValue" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
