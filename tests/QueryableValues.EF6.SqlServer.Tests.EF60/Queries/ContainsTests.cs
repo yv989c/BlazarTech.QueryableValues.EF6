@@ -5,12 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
+namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 {
     [Collection("DbContext")]
-    public class ContainsQueryTests
+    public class ContainsTests
     {
-        public ContainsQueryTests(DbContextFixture _)
+        public ContainsTests(DbContextFixture _)
         {
         }
 

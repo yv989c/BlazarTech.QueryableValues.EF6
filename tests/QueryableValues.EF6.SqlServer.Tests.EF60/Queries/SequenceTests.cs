@@ -3,10 +3,10 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
+namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 {
     [Collection("DbContext")]
-    public class SequenceQueryTests
+    public class SequenceTests
     {
         private readonly DbContextFixture _dbContextFixture;
 
@@ -38,7 +38,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
-        public SequenceQueryTests(DbContextFixture dbContextFixture)
+        public SequenceTests(DbContextFixture dbContextFixture)
         {
             _dbContextFixture = dbContextFixture;
         }

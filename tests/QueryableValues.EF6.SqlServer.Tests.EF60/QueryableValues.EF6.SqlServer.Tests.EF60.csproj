@@ -72,9 +72,9 @@
     <Compile Include="DbUtil.cs" />
     <Compile Include="InfrastructureTests.cs" />
     <Compile Include="ITestDbContext.cs" />
-    <Compile Include="ContainsQueryTests.cs" />
-    <Compile Include="JoinQueryTests.cs" />
-    <Compile Include="SequenceQueryTests.cs" />
+    <Compile Include="Queries\ContainsTests.cs" />
+    <Compile Include="Queries\JoinTests.cs" />
+    <Compile Include="Queries\SequenceTests.cs" />
     <Compile Include="InvalidDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtil.cs" />
