@@ -73,6 +73,7 @@
     <Compile Include="InfrastructureTests.cs" />
     <Compile Include="ITestDbContext.cs" />
     <Compile Include="Queries\ContainsTests.cs" />
+    <Compile Include="Queries\ComplexTests.cs" />
     <Compile Include="Queries\JoinTests.cs" />
     <Compile Include="Queries\SequenceTests.cs" />
     <Compile Include="InvalidDbContext.cs" />
