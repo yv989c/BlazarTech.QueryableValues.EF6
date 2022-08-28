@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
@@ -20,6 +17,23 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             });
 
             Assert.Contains("QueryableValues only works on a DbContext with at least one public DbSet<>.", exception.Message);
+        }
+
+        [Fact]
+        public void OnlyWorksOnDbContext()
+        {
+            var db = new NotADbContext();
+
+            var exception = Assert.Throws<InvalidOperationException>(() =>
+            {
+                _ = db.AsQueryableValues(new[] { 1 }).ToList();
+            });
+
+            Assert.Contains("QueryableValues only works on a System.Data.Entity.DbContext.", exception.Message);
+        }
+
+        class NotADbContext : IQueryableValuesEnabledDbContext
+        {
         }
     }
 }

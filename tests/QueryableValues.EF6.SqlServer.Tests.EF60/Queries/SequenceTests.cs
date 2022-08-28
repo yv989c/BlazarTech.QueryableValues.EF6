@@ -43,9 +43,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
             _dbContextFixture = dbContextFixture;
         }
 
-        private DbContext GetDb(bool useDatabaseFirst)
+        private ITestDbContextWithSauce GetDb(bool useDatabaseFirst)
         {
-            return useDatabaseFirst ? (DbContext)_dbContextFixture.DatabaseFirstDb : _dbContextFixture.CodeFirstDb;
+            return useDatabaseFirst ? (ITestDbContextWithSauce)_dbContextFixture.DatabaseFirstDb : _dbContextFixture.CodeFirstDb;
         }
 
         [Theory]

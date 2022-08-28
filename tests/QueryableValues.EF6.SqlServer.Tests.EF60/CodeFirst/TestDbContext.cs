@@ -2,7 +2,7 @@
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
 {
-    public class TestDbContext : DbContext, ITestDbContext
+    public class TestDbContext : DbContext, ITestDbContext, ITestDbContextWithSauce
     {
         public DbSet<DatabaseFirst.TestDataEntity> TestData { get; set; } = null!;
 

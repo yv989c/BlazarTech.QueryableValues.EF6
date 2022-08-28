@@ -6,4 +6,8 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
     {
         DbSet<DatabaseFirst.TestDataEntity> TestData { get; set; }
     }
+
+    public interface ITestDbContextWithSauce : ITestDbContext, IQueryableValuesEnabledDbContext
+    {
+    }
 }

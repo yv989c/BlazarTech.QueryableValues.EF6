@@ -1,6 +1,6 @@
 ﻿namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.DatabaseFirst
 {
-    public partial class TestDbContext : ITestDbContext
+    public partial class TestDbContext : ITestDbContext, ITestDbContextWithSauce
     {
         public TestDbContext(string connectionString) : base(connectionString)
         {
