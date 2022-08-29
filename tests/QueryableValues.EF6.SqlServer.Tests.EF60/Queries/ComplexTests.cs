@@ -255,5 +255,93 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
                 yield return 123;
             }
         }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public void DocsExamples<T>(T dbContext, bool withCount, bool isEmpty)
+            where T : DbContext, ITestDbContext
+        {
+            IEnumerable<int> values = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(1, 4), withCount);
+
+            {
+                var qvQuery = dbContext.AsQueryableValues(values);
+
+                // Example #1 (LINQ method syntax)
+                var myQuery1 = dbContext.TestData
+                    .Where(e => qvQuery.Contains(e.Id))
+                    .Select(i => new
+                    {
+                        i.Id,
+                        i.GuidValue
+                    })
+                    .ToList();
+
+                AssertUtil.EqualContent(values, myQuery1.Select(i => i.Id));
+
+                // Example #2 (LINQ query syntax)
+                var myQuery2 = (
+                    from e in dbContext.TestData
+                    where qvQuery.Contains(e.Id)
+                    select new
+                    {
+                        e.Id,
+                        e.GuidValue
+                    })
+                    .ToList();
+
+                AssertUtil.EqualContent(values, myQuery2.Select(i => i.Id));
+            }
+
+            {
+                // Example #1 (LINQ method syntax)
+                var myQuery1 = dbContext.TestData
+                    .Join(
+                        dbContext.AsQueryableValues(values),
+                        e => e.Id,
+                        v => v,
+                        (e, v) => new
+                        {
+                            e.Id,
+                            e.GuidValue
+                        }
+                    )
+                    .ToList();
+
+                AssertUtil.EqualContent(values, myQuery1.Select(i => i.Id));
+
+                // Example #2 (LINQ query syntax)
+                var myQuery2 = (
+                    from e in dbContext.TestData
+                    join v in dbContext.AsQueryableValues(values) on e.Id equals v
+                    select new
+                    {
+                        e.Id,
+                        e.GuidValue
+                    })
+                    .ToList();
+
+                AssertUtil.EqualContent(values, myQuery2.Select(i => i.Id));
+            }
+
+            {
+                IEnumerable<int> values1 = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(1, 2), withCount);
+                IEnumerable<int> values2 = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(3, 2), withCount);
+
+                var qvQuery1 = dbContext.AsQueryableValues(values1);
+                var qvQuery2 = dbContext.AsQueryableValues(values2);
+
+                var myQuery = (
+                    from e in dbContext.TestData
+                    where qvQuery1.Contains(e.Id) || qvQuery2.Contains(e.Id)
+                    select new
+                    {
+                        e.Id,
+                        e.GuidValue
+                    })
+                    .ToList();
+
+                AssertUtil.EqualContent(values1.Concat(values2), myQuery.Select(i => i.Id));
+            }
+        }
     }
 }
