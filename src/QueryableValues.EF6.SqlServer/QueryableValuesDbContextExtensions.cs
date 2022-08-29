@@ -17,7 +17,7 @@ namespace BlazarTech.QueryableValues
     /// </remarks>
     public static class QueryableValuesDbContextExtensions
     {
-        internal const string InternalId = "qv-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk-";
+        internal const string InternalId = "⚡-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk-";
 
         private static readonly ConcurrentDictionary<Type, Type> DbSetByDbContext = new ConcurrentDictionary<Type, Type>();
 
