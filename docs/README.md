@@ -27,9 +27,7 @@ Your ⭐ on [this repository][Repository] also helps! Thanks! 🖖🙂
 # Getting Started
 
 ## Installation
-QueryableValues for EF6 is distributed as a [NuGet Package].
-
-You can install it using the command below in your NuGet Package Manager Console window in Visual Studio:
+QueryableValues for EF6 is distributed as a [NuGet Package]. You can install it using the command below in your NuGet Package Manager Console window in Visual Studio:
 
 `Install-Package BlazarTech.QueryableValues.EF6.SqlServer`
 
@@ -54,7 +52,8 @@ Using the [Contains][ContainsQueryable] LINQ method:
 // Sample values.
 IEnumerable<int> values = Enumerable.Range(1, 10);
 
-// This intermediary variable is needed to avoid a NotSupportedException with the message "LINQ to Entities does not recognize the method...".
+// This intermediary variable is needed to avoid a NotSupportedException
+// with the message: "LINQ to Entities does not recognize the method...".
 // Seems to be caused by the use of the Contains method.
 var qvQuery = dbContext.AsQueryableValues(values);
 
