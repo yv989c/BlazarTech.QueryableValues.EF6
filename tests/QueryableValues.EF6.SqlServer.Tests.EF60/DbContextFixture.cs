@@ -24,9 +24,16 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 
         public async Task InitializeAsync()
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            Console.WriteLine("Creating DB...");
             CodeFirstDb.Database.Delete();
             CodeFirstDb.Database.Create();
+            Console.WriteLine($"DB Created ({sw.ElapsedMilliseconds}ms)");
+
+            sw.Restart();
+            Console.WriteLine("Seeding DB...");
             await Seed();
+            Console.WriteLine($"DB Seeded ({sw.ElapsedMilliseconds}ms)");
         }
 
         private async Task Seed()
