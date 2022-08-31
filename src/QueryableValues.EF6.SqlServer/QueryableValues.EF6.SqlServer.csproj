@@ -13,7 +13,7 @@
 		<Description>Allows you to efficiently compose an IEnumerable&lt;T&gt; in your Entity Framework 6 queries when using the SQL Server Database Provider. This is accomplished by using the AsQueryableValues extension method available on the DbContext class. Everything is evaluated on the server with a single round trip, in a way that preserves the query's execution plan, even when the values behind the IEnumerable&lt;T&gt; are changed on subsequent executions.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/yv989c/BlazarTech.QueryableValues.EF6</PackageProjectUrl>
-		<PackageTags>Entity Framework 6 entity-framework EF Data O/RM EntityFramework6 EF6 SQL Server IQueryable IEnumerable Queryable Values MemoryJoin BulkInsertTempTableAsync WhereBulkContains Extension Extensions Memory Join Contains Performance LINQ</PackageTags>
+		<PackageTags>Entity EF EF6 EntityFramework6 entity-framework entity-framework-6 Data ORM SqlServer sql-server IQueryable IEnumerable Queryable Values MemoryJoin BulkInsertTempTableAsync WhereBulkContains Extension Extensions Memory Join Contains Performance LINQ</PackageTags>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
