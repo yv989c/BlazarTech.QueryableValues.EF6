@@ -19,10 +19,9 @@ on:
   workflow_dispatch:
 
 env:
-  # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
 
   # GitHub Packages Feed settings
   GITHUB_FEED: https://nuget.pkg.github.com/yv989c/index.json
@@ -53,10 +52,10 @@ jobs:
       # Pack
       - name: PreRelease-Pack
         if: github.event_name != 'release'
-        run: dotnet pack src/QueryableValues.EF6.SqlServer/*.csproj -c Release --no-restore --version-suffix=build.$env:GITHUB_RUN_NUMBER
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/ -c Release --no-restore --version-suffix=build.$env:GITHUB_RUN_NUMBER
       - name: Release-Pack
         if: github.event_name == 'release'
-        run: dotnet pack src/QueryableValues.EF6.SqlServer/*.csproj -c Release --no-restore
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/ -c Release --no-restore
 
       # Tests
       - name: Build
