@@ -4,7 +4,8 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-		<RootNamespace>BlazarTech.QueryableValues</RootNamespace>
+		<RootNamespace>BlazarTech.QueryableValues.EF6.SqlServer.Tests</RootNamespace>
+		<AssemblyName>BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF64</AssemblyName>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
