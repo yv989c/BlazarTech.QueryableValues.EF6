@@ -160,4 +160,4 @@ Thanks! 🖖🙂
 [Repository]: https://github.com/yv989c/BlazarTech.QueryableValues.EF6
 [NuGet Package]: https://www.nuget.org/packages/BlazarTech.QueryableValues.EF6.SqlServer/
 [BuyMeACoffee]: https://www.buymeacoffee.com/yv989c
-[BuyMeACoffeeButton]: /docs/images/bmc-48.svg
+[BuyMeACoffeeButton]: https://raw.githubusercontent.com/yv989c/BlazarTech.QueryableValues.EF6/develop/docs/images/bmc-48.svg
