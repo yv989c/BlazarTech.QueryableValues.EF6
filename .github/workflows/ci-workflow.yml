@@ -1,4 +1,3 @@
-# Adapted from: https://github.com/giraffe-fsharp/Giraffe/blob/master/.github/workflows/build.yml
 name: CI/CD Workflow
 on:
   push:
@@ -15,53 +14,61 @@ on:
   release:
     types:
       - published
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 env:
   # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  # Project name to pack and publish
-  PROJECT_NAME: BlazarTech.QueryableValues.EF6.SqlServer
+
   # GitHub Packages Feed settings
   GITHUB_FEED: https://nuget.pkg.github.com/yv989c/index.json
   GITHUB_USER: yv989c
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   LOCAL_NUGET_PAT: ${{ secrets.LOCAL_NUGET_PAT }}
+
   # Official NuGet Feed settings
   NUGET_FEED: https://api.nuget.org/v3/index.json
   NUGET_USER: yv989c
   NUGET_TOKEN: ${{ secrets.NUGET_KEY }}
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ windows-latest ]
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-      - name: Setup VSTest
-        uses: darenm/Setup-VSTest@v1
+        uses: microsoft/setup-msbuild@v1.1
+      #- name: Setup VSTest
+      #  uses: darenm/Setup-VSTest@v1
 
       - name: Restore
         run: dotnet restore BlazarTech.QueryableValues.EF6.sln
 
+      # Pack
       - name: PreRelease-Pack
         if: github.event_name != 'release'
-        run: dotnet pack .\src\QueryableValues.EF6.SqlServer\ -c Release --no-restore --version-suffix=build.$env:GITHUB_RUN_NUMBER
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/*.csproj -c Release --no-restore --version-suffix=build.$env:GITHUB_RUN_NUMBER
       - name: Release-Pack
         if: github.event_name == 'release'
-        run: dotnet pack .\src\QueryableValues.EF6.SqlServer\ -c Release --no-restore
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/*.csproj -c Release --no-restore
 
-      - name: Tests .NET Core
-        run: dotnet test .\BlazarTech.QueryableValues.EF6.Tests.DotNetCore.sln -c Release --no-restore -l "console;verbosity=detailed"
-      - name: Build .NET Framework
-        run: msbuild .\BlazarTech.QueryableValues.EF6.Tests.DotNetFramework.sln -property:Configuration=Release -property:RestorePackages=false
-      - name: Tests .NET Framework
-        run: vstest.console.exe .\tests\QueryableValues.EF6.SqlServer.Tests.EF*\bin\Release\BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+      # Tests
+      - name: Build
+        run: msbuild BlazarTech.QueryableValues.EF6.sln -property:Configuration=Release -property:RestorePackages=false
+      #- name: Tests
+      #  run: vstest.console.exe tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+      - name: Tests
+        uses: microsoft-approved-actions/vstest@master
+        with:
+          testAssembly: BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+          searchFolder: ./tests/
+          runInParallel: false
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
