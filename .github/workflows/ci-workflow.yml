@@ -64,7 +64,7 @@ jobs:
       #- name: Tests
       #  run: vstest.console.exe tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
       - name: Tests
-        uses: microsoft-approved-actions/vstest@master
+        uses: microsoft/vstest@v1.0.0
         with:
           testAssembly: BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
           searchFolder: ./tests/
