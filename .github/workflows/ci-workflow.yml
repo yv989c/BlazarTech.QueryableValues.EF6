@@ -1,0 +1,105 @@
+name: CI/CD Workflow
+on:
+  push:
+    branches:
+    - develop
+    - 'feature/**'
+    paths:
+      - 'src/**'
+      - 'Version.xml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'Version.xml'
+  release:
+    types:
+      - published
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+
+  # GitHub Packages Feed settings
+  GITHUB_FEED: https://nuget.pkg.github.com/yv989c/index.json
+  GITHUB_USER: yv989c
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  LOCAL_NUGET_PAT: ${{ secrets.LOCAL_NUGET_PAT }}
+
+  # Official NuGet Feed settings
+  NUGET_FEED: https://api.nuget.org/v3/index.json
+  NUGET_USER: yv989c
+  NUGET_TOKEN: ${{ secrets.NUGET_KEY }}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+      #- name: Setup VSTest
+      #  uses: darenm/Setup-VSTest@v1
+
+      - name: Restore
+        run: dotnet restore BlazarTech.QueryableValues.EF6.sln
+
+      # Pack
+      - name: PreRelease-Pack
+        if: github.event_name != 'release'
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/ -c Release --no-restore --version-suffix=build.$env:GITHUB_RUN_NUMBER
+      - name: Release-Pack
+        if: github.event_name == 'release'
+        run: dotnet pack src/QueryableValues.EF6.SqlServer/ -c Release --no-restore
+
+      # Tests
+      - name: Build
+        run: msbuild BlazarTech.QueryableValues.EF6.sln -property:Configuration=Release -property:RestorePackages=false
+      #- name: Tests
+      #  run: vstest.console.exe tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+      - name: Tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+          searchFolder: ./tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/
+          runInParallel: false
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: ./src/QueryableValues.EF6.SqlServer/bin/Release/*.nupkg
+  prerelease:
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    runs-on: windows-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: nupkg
+      - name: Push to GitHub Feed
+        run: |
+          dotnet nuget add source --username $env:GITHUB_USER --password $env:GITHUB_TOKEN --store-password-in-clear-text --name github "$env:GITHUB_FEED" &&
+          dotnet nuget push "**/*.nupkg" --api-key $env:LOCAL_NUGET_PAT --source github --skip-duplicate
+  deploy:
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: nupkg
+      - name: Push to GitHub Feed
+        run: |
+          dotnet nuget add source --username $env:GITHUB_USER --password $env:GITHUB_TOKEN --store-password-in-clear-text --name github "$env:GITHUB_FEED" &&
+          dotnet nuget push "**/*.nupkg" --api-key $env:LOCAL_NUGET_PAT --source github --skip-duplicate
+      - name: Push to NuGet Feed
+        run: |
+          dotnet nuget push "**/*.nupkg" --api-key $env:NUGET_TOKEN --source $env:NUGET_FEED --skip-duplicate

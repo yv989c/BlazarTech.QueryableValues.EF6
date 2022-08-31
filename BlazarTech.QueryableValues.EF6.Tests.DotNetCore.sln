@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{082476C1-ADD0-431B-876F-074306E4EDEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryableValues.EF6.SqlServer", "src\QueryableValues.EF6.SqlServer\QueryableValues.EF6.SqlServer.csproj", "{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FC687FC0-CA56-4151-BCCA-E4599F4523DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore", "tests\QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore\QueryableValues.EF6.SqlServer.Tests.EF64.DotNetCore.csproj", "{43ABAB90-0CDE-4C42-8A5F-E08F8320C301}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43ABAB90-0CDE-4C42-8A5F-E08F8320C301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43ABAB90-0CDE-4C42-8A5F-E08F8320C301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43ABAB90-0CDE-4C42-8A5F-E08F8320C301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43ABAB90-0CDE-4C42-8A5F-E08F8320C301}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EDC4EF93-22E7-42D0-8A6B-14FF2DD13934} = {082476C1-ADD0-431B-876F-074306E4EDEA}
+		{43ABAB90-0CDE-4C42-8A5F-E08F8320C301} = {FC687FC0-CA56-4151-BCCA-E4599F4523DA}
+	EndGlobalSection
+EndGlobal

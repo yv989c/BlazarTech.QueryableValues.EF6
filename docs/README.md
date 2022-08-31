@@ -1,7 +1,3 @@
-<p align="center">
-    <img src="/docs/images/icon.png" alt="Logo" style="width: 80px;">
-</p>
-
 # QueryableValues for EF6
 
 [![MIT License](https://badgen.net/badge/license/MIT/blue)](https://github.com/yv989c/BlazarTech.QueryableValues.EF6/blob/main/LICENSE)

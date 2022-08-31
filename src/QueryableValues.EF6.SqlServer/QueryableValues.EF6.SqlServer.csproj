@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../../Version.xml" />
+	
+	<PropertyGroup>
+		<TargetFrameworks>net452;net472;netstandard2.1;net6.0</TargetFrameworks>
+		<RootNamespace>BlazarTech.QueryableValues</RootNamespace>
+		<AssemblyName>BlazarTech.QueryableValues.EF6.SqlServer</AssemblyName>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<RepositoryUrl>https://github.com/yv989c/BlazarTech.QueryableValues.EF6</RepositoryUrl>
+		<Authors>Carlos Villegas</Authors>
+		<Product>BlazarTech.QueryableValues</Product>
+		<PackageId>BlazarTech.QueryableValues.EF6.SqlServer</PackageId>
+		<Description>Allows you to efficiently compose an IEnumerable&lt;T&gt; in your Entity Framework 6 queries when using the SQL Server Database Provider. This is accomplished by using the AsQueryableValues extension method available on the DbContext class. Everything is evaluated on the server with a single round trip, in a way that preserves the query's execution plan, even when the values behind the IEnumerable&lt;T&gt; are changed on subsequent executions.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/yv989c/BlazarTech.QueryableValues</PackageProjectUrl>
+		<PackageTags>Entity Framework 6 entity-framework EF Data O/RM EntityFramework6 EF6 SQL Server IQueryable IEnumerable Queryable Values MemoryJoin BulkInsertTempTableAsync WhereBulkContains Extension Extensions Memory Join Contains Performance LINQ</PackageTags>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net452' or '$(TargetFramework)'=='net472'">
+		<LangVersion>8</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\docs\images\icon.png" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\docs\README.md" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\LICENSE.md" Visible="false">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net452' or '$(TargetFramework)'=='net472'">
+		<PackageReference Include="EntityFramework" Version="6.0.0" />
+		<PackageReference Include="System.Buffers" Version="4.5.1" />
+		<Reference Include="System.Runtime.Caching" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
+		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.8" />
+	</ItemGroup>
+	
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.1' or '$(TargetFramework)'=='net6.0'">
+		<PackageReference Include="EntityFramework" Version="6.3.0" />
+		<PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.8" />
+	</ItemGroup>
+</Project>

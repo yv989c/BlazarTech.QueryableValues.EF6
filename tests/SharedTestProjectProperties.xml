@@ -1,0 +1,14 @@
+﻿<Project>
+	<ItemGroup>
+		<Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\*.cs" />
+		<Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\CodeFirst\**\*.cs">
+			<Link>CodeFirst\%(RecursiveDir)\%(FileName)%(Extension)</Link>
+		</Compile>
+		<Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\DatabaseFirst\**\*.cs">
+			<Link>DatabaseFirst\%(RecursiveDir)\%(FileName)%(Extension)</Link>
+		</Compile>
+		<Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\Queries\**\*.cs">
+			<Link>Queries\%(RecursiveDir)\%(FileName)%(Extension)</Link>
+		</Compile>
+	</ItemGroup>
+</Project>
