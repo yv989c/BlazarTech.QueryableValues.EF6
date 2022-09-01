@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
@@ -7,7 +8,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
         DbSet<DatabaseFirst.TestDataEntity> TestData { get; set; }
     }
 
-    public interface ITestDbContextWithSauce : ITestDbContext, IQueryableValuesEnabledDbContext
+    public interface ITestDbContextWithSauce : ITestDbContext, IQueryableValuesEnabledDbContext, IDisposable
     {
     }
 }

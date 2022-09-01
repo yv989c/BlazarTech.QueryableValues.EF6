@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Xunit;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
@@ -138,6 +136,32 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                 {
                     random.NextBytes(bytes);
                     yield return new Guid(bytes);
+                }
+            }
+        }
+
+        public static IEnumerable<(bool UseDatabaseFirst, bool UseDatabaseNullSemantics, bool IsEmpty, bool WithCount)> GetTestDataOptions()
+        {
+#if NET5_0_OR_GREATER
+            var useDatabaseFirstOptions = new[] { false };
+#else
+            var useDatabaseFirstOptions = new[] { false, true };
+#endif
+            var useDatabaseNullSemanticsOptions = new[] { false, true };
+            var isEmptyOptions = new[] { false, true };
+            var withCountOptions = new[] { false, true };
+
+            foreach (var useDatabaseFirstOption in useDatabaseFirstOptions)
+            {
+                foreach (var useDatabaseNullSemanticsOption in useDatabaseNullSemanticsOptions)
+                {
+                    foreach (var isEmptyOption in isEmptyOptions)
+                    {
+                        foreach (var withCountOption in withCountOptions)
+                        {
+                            yield return (useDatabaseFirstOption, useDatabaseNullSemanticsOption, isEmptyOption, withCountOption);
+                        }
+                    }
                 }
             }
         }

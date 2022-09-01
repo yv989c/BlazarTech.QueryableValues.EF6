@@ -18,5 +18,14 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                 return connectionString;
             }
         }
+
+        public static ITestDbContextWithSauce CreateDbContext(bool useDatabaseFirst, bool useDatabaseNullSemantics)
+        {
+            var dbContext = useDatabaseFirst ?
+                (ITestDbContextWithSauce)DatabaseFirst.TestDbContext.Create(useDatabaseNullSemantics) :
+                CodeFirst.TestDbContext.Create(useDatabaseNullSemantics);
+
+            return dbContext;
+        }
     }
 }

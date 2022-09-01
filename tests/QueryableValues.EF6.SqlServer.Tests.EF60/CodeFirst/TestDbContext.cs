@@ -11,9 +11,15 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
             Database.SetInitializer<TestDbContext>(null);
         }
 
-        public static TestDbContext Create()
+        public static TestDbContext Create(bool useDatabaseNullSemantics = false)
         {
-            return new TestDbContext(DbUtil.GetConnectionString(false));
+            return new TestDbContext(DbUtil.GetConnectionString(false))
+            {
+                Configuration =
+                {
+                    UseDatabaseNullSemantics = useDatabaseNullSemantics
+                }
+            };
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

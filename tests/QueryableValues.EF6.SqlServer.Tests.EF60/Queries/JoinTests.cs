@@ -18,30 +18,10 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
         {
             get
             {
-                var options = new (bool WithCount, bool IsEmpty)[]
+                foreach (var option in TestUtil.GetTestDataOptions())
                 {
-                    (false, false),
-                    (false, true),
-                    (true, false),
-                    (true, true)
-                };
-
-#if NET5_0_OR_GREATER
-                foreach (var option in options)
-                {
-                    yield return new object[] { CodeFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
+                    yield return new object[] { option.UseDatabaseFirst, option.UseDatabaseNullSemantics, option.WithCount, option.IsEmpty };
                 }
-#else
-                foreach (var option in options)
-                {
-                    yield return new object[] { CodeFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
-                }
-
-                foreach (var option in options)
-                {
-                    yield return new object[] { DatabaseFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
-                }
-#endif
             }
         }
 
@@ -57,10 +37,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Byte<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Byte(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -89,10 +68,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int16<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Int16(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -120,10 +98,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int32<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Int32(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -153,10 +130,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int64<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Int64(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -185,10 +161,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task String<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task String(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -217,10 +192,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task StringUnicode<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task StringUnicode(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
@@ -249,10 +223,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Guid<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Guid(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
                 var result = await (
