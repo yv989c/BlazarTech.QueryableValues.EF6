@@ -1,4 +1,4 @@
-# QueryableValues for EF6
+# QueryableValues `EF6 Edition`
 
 [![MIT License](https://badgen.net/badge/license/MIT/blue)](https://github.com/yv989c/BlazarTech.QueryableValues.EF6/blob/main/LICENSE.md)
 [![GitHub Stars](https://badgen.net/github/stars/yv989c/BlazarTech.QueryableValues.EF6?icon=github)][Repository]
@@ -12,7 +12,7 @@ For a detailed explanation of the problem solved by QueryableValues, please cont
 
 > 💡 This is a streamlined version of the original [QueryableValues][QueryableValuesEFCoreRepository] for Entity Framework Core, which I have adapted to provide some of its features on [Entity Framework 6].
 
-> 💡 Are you on Entity Framework Core? Use [the original version][QueryableValuesEFCoreRepository] of QueryableValues instead.
+> 💡 Using Entity Framework Core? Then [the original version][QueryableValuesEFCoreRepository] of QueryableValues is what you need.
 
 ## When Should You Use It?
 The `AsQueryableValues` extension method is intended for queries that are dependent upon a *non-constant* sequence of external values. In such cases, the underlying SQL query will be efficient on subsequent executions.
@@ -27,7 +27,7 @@ Your ⭐ on [this repository][Repository] also helps! Thanks! 🖖🙂
 # Getting Started
 
 ## Installation
-QueryableValues for EF6 is distributed as a [NuGet Package]. You can install it using the command below in your NuGet Package Manager Console window in Visual Studio:
+QueryableValues `EF6 Edition` is distributed as a [NuGet Package]. You can install it using the command below in your NuGet Package Manager Console window in Visual Studio:
 
 `Install-Package BlazarTech.QueryableValues.EF6.SqlServer`
 

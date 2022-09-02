@@ -60,14 +60,16 @@ jobs:
       # Tests
       - name: Build
         run: msbuild BlazarTech.QueryableValues.EF6.sln -property:Configuration=Release -property:RestorePackages=false
-      #- name: Tests
-      #  run: vstest.console.exe tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
       - name: Tests
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
-          searchFolder: ./tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/
-          runInParallel: false
+        run: |
+          & "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/Extensions/TestPlatform/vstest.console.exe" ./tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+        #uses: microsoft/vstest-action@v1.0.0
+        #with:
+        #  testAssembly: BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF*.dll
+        #  searchFolder: ./tests/QueryableValues.EF6.SqlServer.Tests.EF*/bin/Release/**/
+        #  runInParallel: false
+        #  vstestLocationMethod: location
+        #  vstestLocation: 'C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/Extensions/TestPlatform/vstest.console.exe'
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

@@ -6,9 +6,15 @@
         {
         }
 
-        public static TestDbContext Create()
+        public static TestDbContext Create(bool useDatabaseNullSemantics = false)
         {
-            return new TestDbContext(DbUtil.GetConnectionString(true));
+            return new TestDbContext(DbUtil.GetConnectionString(true))
+            {
+                Configuration =
+                {
+                    UseDatabaseNullSemantics = useDatabaseNullSemantics
+                }
+            };
         }
     }
 }

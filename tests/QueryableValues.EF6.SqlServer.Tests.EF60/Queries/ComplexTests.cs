@@ -18,30 +18,10 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
         {
             get
             {
-                var options = new (bool WithCount, bool IsEmpty)[]
+                foreach (var option in TestUtil.GetTestDataOptions())
                 {
-                    (false, false),
-                    (false, true),
-                    (true, false),
-                    (true, true)
-                };
-
-#if NET5_0_OR_GREATER
-                foreach (var option in options)
-                {
-                    yield return new object[] { CodeFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
+                    yield return new object[] { option.UseDatabaseFirst, option.UseDatabaseNullSemantics, option.WithCount, option.IsEmpty };
                 }
-#else
-                foreach (var option in options)
-                {
-                    yield return new object[] { CodeFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
-                }
-
-                foreach (var option in options)
-                {
-                    yield return new object[] { DatabaseFirst.TestDbContext.Create(), option.WithCount, option.IsEmpty };
-                }
-#endif
             }
         }
 
@@ -57,10 +37,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Complex1<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Complex1(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
 
@@ -99,10 +78,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Complex2<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Complex2(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequence = GetSequence(getSequence(), withCount);
 
@@ -156,10 +134,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Complex3<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Complex3(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequenceStringUnicode = GetSequence(getSequenceString(), withCount);
                 var qvStringUnicode = db.AsQueryableValues(sequenceStringUnicode, isUnicode: true);
@@ -203,10 +180,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Complex4<T>(T db, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public async Task Complex4(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            using (db)
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics))
             {
                 var sequenceStringUnicode = GetSequence(getSequenceString(), withCount);
                 var qvStringUnicode = db.AsQueryableValues(sequenceStringUnicode, isUnicode: true);
@@ -258,10 +234,11 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public void DocsExamples<T>(T dbContext, bool withCount, bool isEmpty)
-            where T : DbContext, ITestDbContext
+        public void DocsExamples<T>(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
             IEnumerable<int> values = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(1, 4), withCount);
+
+            using var dbContext = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
 
             {
                 var qvQuery = dbContext.AsQueryableValues(values);

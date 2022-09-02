@@ -8,51 +8,44 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
     [Collection("DbContext")]
     public class SequenceTests
     {
-        private readonly DbContextFixture _dbContextFixture;
-
         public static IEnumerable<object[]> Data
         {
             get
             {
-                var numberOfElementsList = new[] { 0, 6, 1000 };
-
 #if NET5_0_OR_GREATER
-                foreach (var numberOfElements in numberOfElementsList)
-                {
-                    yield return new object[] { false, numberOfElements, false };
-                    yield return new object[] { false, numberOfElements, true };
-                }
+                var useDatabaseFirstOptions = new[] { false };
 #else
-                foreach (var numberOfElements in numberOfElementsList)
-                {
-                    yield return new object[] { false, numberOfElements, false };
-                    yield return new object[] { false, numberOfElements, true };
-                }
-
-                foreach (var numberOfElements in numberOfElementsList)
-                {
-                    yield return new object[] { true, numberOfElements, false };
-                    yield return new object[] { true, numberOfElements, true };
-                }
+                var useDatabaseFirstOptions = new[] { false, true };
 #endif
+                var useDatabaseNullSemanticsOptions = new[] { false, true };
+                var numberOfElementsOptions = new[] { 0, 6, 1000 };
+                var withCountOptions = new[] { false, true };
+
+                foreach (var useDatabaseFirstOption in useDatabaseFirstOptions)
+                {
+                    foreach (var useDatabaseNullSemanticsOption in useDatabaseNullSemanticsOptions)
+                    {
+                        foreach (var numberOfElementsOption in numberOfElementsOptions)
+                        {
+                            foreach (var withCountOption in withCountOptions)
+                            {
+                                yield return new object[] { useDatabaseFirstOption, useDatabaseNullSemanticsOption, numberOfElementsOption, withCountOption };
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        public SequenceTests(DbContextFixture dbContextFixture)
+        public SequenceTests(DbContextFixture _)
         {
-            _dbContextFixture = dbContextFixture;
-        }
-
-        private ITestDbContextWithSauce GetDb(bool useDatabaseFirst)
-        {
-            return useDatabaseFirst ? (ITestDbContextWithSauce)_dbContextFixture.DatabaseFirstDb : _dbContextFixture.CodeFirstDb;
         }
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Byte(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task Byte(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfByte(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -60,9 +53,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int16(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task Int16(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfInt16(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -70,9 +63,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int32(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task Int32(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfInt32(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -80,9 +73,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int64(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task Int64(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfInt64(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -90,9 +83,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task String(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task String(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, false);
             var result = await db.AsQueryableValues(sequence, isUnicode: false).ToListAsync();
             Assert.Equal(sequence, result);
@@ -100,9 +93,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task StringUnicode(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task StringUnicode(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, true);
             var result = await db.AsQueryableValues(sequence, isUnicode: true).ToListAsync();
             Assert.Equal(sequence, result);
@@ -110,9 +103,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Guid(bool useDatabaseFirst, int numberOfElements, bool withCount)
+        public async Task Guid(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = GetDb(useDatabaseFirst);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
             var sequence = TestUtil.GetSequenceOfGuid(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
