@@ -113,20 +113,6 @@ namespace BlazarTech.QueryableValues
             }
         }
 
-        private static DbContext GetDbContext(IQueryableValuesEnabledDbContext dbContext)
-        {
-            ThrowIfNull(dbContext, nameof(dbContext));
-
-            if (dbContext is DbContext castedDbContext)
-            {
-                return castedDbContext;
-            }
-            else
-            {
-                throw new InvalidOperationException("QueryableValues only works on a System.Data.Entity.DbContext.");
-            }
-        }
-
         /// <summary>
         /// Allows an <see cref="IEnumerable{Byte}">IEnumerable&lt;byte&gt;</see> to be composed in an Entity Framework query.
         /// </summary>
@@ -141,20 +127,6 @@ namespace BlazarTech.QueryableValues
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryByte);
-        }
-
-        /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{byte})" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{byte})" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{byte})" path="/param[@name='values']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{byte})" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{byte})"/></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<byte> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<byte> values)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values);
         }
 
         /// <summary>
@@ -174,20 +146,6 @@ namespace BlazarTech.QueryableValues
         }
 
         /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{short})" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{short})" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{short})" path="/param[@name='values']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{short})" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{short})"/></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<short> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<short> values)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values);
-        }
-
-        /// <summary>
         /// Allows an <see cref="IEnumerable{Int32}">IEnumerable&lt;int&gt;</see> to be composed in an Entity Framework query.
         /// </summary>
         /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
@@ -204,20 +162,6 @@ namespace BlazarTech.QueryableValues
         }
 
         /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{int})" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{int})" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{int})" path="/param[@name='values']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{int})" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{int})"/></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<int> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<int> values)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values);
-        }
-
-        /// <summary>
         /// Allows an <see cref="IEnumerable{Int64}">IEnumerable&lt;long&gt;</see> to be composed in an Entity Framework query.
         /// </summary>
         /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
@@ -231,20 +175,6 @@ namespace BlazarTech.QueryableValues
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryLong);
-        }
-
-        /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{long})" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{long})" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{long})" path="/param[@name='values']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{long})" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{long})"/></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<long> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<long> values)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values);
         }
 
         /// <summary>
@@ -271,21 +201,6 @@ namespace BlazarTech.QueryableValues
         }
 
         /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" path="/param[@name='values']" /></param>
-        /// <param name="isUnicode"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" path="/param[@name='isUnicode']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{string}, bool)" /></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<string> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<string> values, bool isUnicode = false)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values, isUnicode: isUnicode);
-        }
-
-        /// <summary>
         /// Allows an <see cref="IEnumerable{Guid}">IEnumerable&lt;Guid&gt;</see> to be composed in an Entity Framework query.
         /// </summary>
         /// <param name="dbContext">The <see cref="DbContext"/> owning the query.</param>
@@ -299,20 +214,6 @@ namespace BlazarTech.QueryableValues
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
             return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryGuid);
-        }
-
-        /// <summary>
-        /// <inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{Guid})" />
-        /// </summary>
-        /// <param name="dbContext"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{Guid})" path="/param[@name='dbContext']" /></param>
-        /// <param name="values"><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{Guid})" path="/param[@name='values']" /></param>
-        /// <returns><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{Guid})" /></returns>
-        /// <remarks><inheritdoc cref="AsQueryableValues(DbContext, IEnumerable{Guid})"/></remarks>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static IQueryable<Guid> AsQueryableValues(this IQueryableValuesEnabledDbContext dbContext, IEnumerable<Guid> values)
-        {
-            return GetDbContext(dbContext).AsQueryableValues(values);
         }
     }
 }
