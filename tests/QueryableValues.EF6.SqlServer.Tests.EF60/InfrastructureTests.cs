@@ -29,7 +29,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                 _ = db.AsQueryableValues(new[] { 1 }).ToList();
             });
 
-            Assert.Contains("QueryableValues only works on a System.Data.Entity.DbContext.", exception.Message);
+            Assert.Contains("QueryableValues only works on a System.Data.Entity.DbContext type.", exception.Message);
         }
 
         class NotADbContext : IQueryableValuesEnabledDbContext
