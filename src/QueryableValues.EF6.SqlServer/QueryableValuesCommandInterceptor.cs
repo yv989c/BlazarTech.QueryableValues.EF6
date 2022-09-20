@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -21,6 +22,57 @@ namespace BlazarTech.QueryableValues
         private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z\-]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex Regex2 = new Regex(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
+        private static readonly ConcurrentDictionary<string, bool> JsonSupportByDb = new ConcurrentDictionary<string, bool>();
+
+        private static bool IsJsonSupported(SqlConnection connection)
+        {
+#if NET472_OR_GREATER || NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return JsonSupportByDb.GetOrAdd(connection.ConnectionString, isJsonSupported, connection);
+#else
+            return JsonSupportByDb.GetOrAdd(connection.ConnectionString, key => isJsonSupported(key, connection));
+#endif
+
+            static bool isJsonSupported(string key, SqlConnection connection)
+            {
+                var majorVersionNumber = getMajorVersionNumber(connection.ServerVersion);
+
+                // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
+                if (majorVersionNumber >= 13)
+                {
+                    using var cm = new SqlCommand("SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()", connection);
+                    var compatibilityLevel = Convert.ToInt32(cm.ExecuteScalar());
+                    return compatibilityLevel >= 130;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            static int getMajorVersionNumber(string? serverVersion)
+            {
+                if (serverVersion != null)
+                {
+                    var index = serverVersion.IndexOf('.');
+
+                    if (index >= 0)
+                    {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                        var substring = serverVersion.AsSpan()[..index];
+#else
+                        var substring = serverVersion.Substring(0, index);
+#endif
+                        if (int.TryParse(substring, out int majorVersionNumber))
+                        {
+                            return majorVersionNumber;
+                        }
+                    }
+                }
+
+                return 0;
+            }
+        }
+
         private static void TransformCommand(DbCommand command)
         {
             var originalCommandText = command.CommandText;
@@ -34,6 +86,10 @@ namespace BlazarTech.QueryableValues
             {
                 throw new InvalidOperationException("QueryableValues only works with a SQL Server provider.");
             }
+
+            // 0: auto, 1: always: 2: never
+            var options = 0;
+            var useJson = (options == 0 && IsJsonSupported(sqlCommand.Connection)) || options == 1;
 
             var entry = (InterceptedCommandData)Cache.Get(originalCommandText);
 
