@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Runtime.Caching;
 using System.Text.RegularExpressions;
 
@@ -39,14 +40,19 @@ namespace BlazarTech.QueryableValues
                 // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
                 if (majorVersionNumber >= 13)
                 {
-                    using var cm = new SqlCommand("SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()", connection);
-                    var compatibilityLevel = Convert.ToInt32(cm.ExecuteScalar());
-                    return compatibilityLevel >= 130;
+                    try
+                    {
+                        using var cm = new SqlCommand("SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()", connection);
+                        var compatibilityLevel = Convert.ToInt32(cm.ExecuteScalar());
+                        return compatibilityLevel >= 130;
+                    }
+                    catch (Exception ex)
+                    {
+                        Util.TraceError(nameof(IsJsonSupported), ex);
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             static int getMajorVersionNumber(string? serverVersion)
@@ -73,7 +79,19 @@ namespace BlazarTech.QueryableValues
             }
         }
 
-        private static void TransformCommand(DbCommand command)
+        private static IQueryableValuesConfiguration GetConfiguration(DbCommandInterceptionContext interceptionContext)
+        {
+            if (interceptionContext.DbContexts.FirstOrDefault()?.GetType() is Type dbContextType)
+            {
+                return QueryableValuesConfigurator.GetConfiguration(dbContextType);
+            }
+            else
+            {
+                return QueryableValuesConfigurator.DefaultConfiguration;
+            }
+        }
+
+        private static void TransformCommand(DbCommand command, DbCommandInterceptionContext interceptionContext)
         {
             var originalCommandText = command.CommandText;
 
@@ -87,9 +105,11 @@ namespace BlazarTech.QueryableValues
                 throw new InvalidOperationException("QueryableValues only works with a SQL Server provider.");
             }
 
-            // 0: auto, 1: always: 2: never
-            var options = 0;
-            var useJson = (options == 0 && IsJsonSupported(sqlCommand.Connection)) || options == 1;
+            var configuration = GetConfiguration(interceptionContext);
+
+            var useJson = 
+                (configuration.JsonOptions == QueryableValuesJsonOptions.Auto && IsJsonSupported(sqlCommand.Connection)) ||
+                configuration.JsonOptions == QueryableValuesJsonOptions.Always;
 
             var entry = (InterceptedCommandData)Cache.Get(originalCommandText);
 
@@ -198,7 +218,7 @@ namespace BlazarTech.QueryableValues
 
         public void NonQueryExecuting(DbCommand command, DbCommandInterceptionContext<int> interceptionContext)
         {
-            TransformCommand(command);
+            TransformCommand(command, interceptionContext);
         }
 
         public void ReaderExecuted(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
@@ -207,7 +227,7 @@ namespace BlazarTech.QueryableValues
 
         public void ReaderExecuting(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
         {
-            TransformCommand(command);
+            TransformCommand(command, interceptionContext);
         }
 
         public void ScalarExecuted(DbCommand command, DbCommandInterceptionContext<object> interceptionContext)
@@ -216,7 +236,7 @@ namespace BlazarTech.QueryableValues
 
         public void ScalarExecuting(DbCommand command, DbCommandInterceptionContext<object> interceptionContext)
         {
-            TransformCommand(command);
+            TransformCommand(command, interceptionContext);
         }
 
         private class InterceptedCommandData
