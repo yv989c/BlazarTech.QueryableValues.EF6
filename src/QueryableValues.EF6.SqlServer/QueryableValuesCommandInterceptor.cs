@@ -7,23 +7,24 @@ using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BlazarTech.QueryableValues
 {
     sealed class QueryableValuesCommandInterceptor : IDbCommandInterceptor
     {
-        private static readonly MemoryCache Cache = new MemoryCache(
+        private static readonly MemoryCache Cache = new(
             "BlazarTech.QueryableValues.EF6",
             new NameValueCollection
             {
                 { "CacheMemoryLimitMegabytes", "10" }
             });
 
-        private static readonly Regex Regex1 = new Regex(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z\-]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-        private static readonly Regex Regex2 = new Regex(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
+        private static readonly Regex Regex1 = new(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z\-]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex Regex2 = new(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
-        private static readonly ConcurrentDictionary<string, bool> JsonSupportByDb = new ConcurrentDictionary<string, bool>();
+        private static readonly ConcurrentDictionary<string, bool> JsonSupportByDb = new();
 
         private static bool IsJsonSupported(SqlConnection connection)
         {
@@ -91,6 +92,69 @@ namespace BlazarTech.QueryableValues
             }
         }
 
+        private static void BuildSqlQueryFragmentForXml(StringBuilder sb, string dataType, string valueParameterName)
+        {
+            sb.Append("I.value('. cast as xs:");
+
+            string xmlType, sqlType;
+
+            switch (dataType)
+            {
+                case QueryTypeIdentifier.Byte:
+                    xmlType = "unsignedByte";
+                    sqlType = "tinyint";
+                    break;
+                case QueryTypeIdentifier.Short:
+                    xmlType = "short";
+                    sqlType = "smallint";
+                    break;
+                case QueryTypeIdentifier.Int:
+                    xmlType = "integer";
+                    sqlType = "int";
+                    break;
+                case QueryTypeIdentifier.Long:
+                    xmlType = "integer";
+                    sqlType = "bigint";
+                    break;
+                case QueryTypeIdentifier.String:
+                    xmlType = "string";
+                    sqlType = "varchar(max)";
+                    break;
+                case QueryTypeIdentifier.StringUnicode:
+                    xmlType = "string";
+                    sqlType = "nvarchar(max)";
+                    break;
+                case QueryTypeIdentifier.Guid:
+                    xmlType = "string";
+                    sqlType = "uniqueidentifier";
+                    break;
+                default:
+                    throw new NotImplementedException(dataType);
+            }
+
+            sb.Append(xmlType).Append("?', '").Append(sqlType);
+            sb.Append("') AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
+        }
+
+        private static void BuildSqlQueryFragmentForJson(StringBuilder sb, string dataType, string valueParameterName)
+        {
+            sb.Append("[C1] FROM OPENJSON(@").Append(valueParameterName).Append(") WITH ([C1] ");
+
+            var sqlType = dataType switch
+            {
+                QueryTypeIdentifier.Byte => "tinyint",
+                QueryTypeIdentifier.Short => "smallint",
+                QueryTypeIdentifier.Int => "int",
+                QueryTypeIdentifier.Long => "bigint",
+                QueryTypeIdentifier.String => "varchar(max)",
+                QueryTypeIdentifier.StringUnicode => "nvarchar(max)",
+                QueryTypeIdentifier.Guid => "uniqueidentifier",
+                _ => throw new NotImplementedException(dataType),
+            };
+
+            sb.Append(sqlType).Append(" '$')");
+        }
+
         private static void TransformCommand(DbCommand command, DbCommandInterceptionContext interceptionContext)
         {
             var originalCommandText = command.CommandText;
@@ -100,26 +164,32 @@ namespace BlazarTech.QueryableValues
                 return;
             }
 
-            if (!(command is SqlCommand sqlCommand))
+            if (command is not SqlCommand sqlCommand)
             {
                 throw new InvalidOperationException("QueryableValues only works with a SQL Server provider.");
             }
-
-            var configuration = GetConfiguration(interceptionContext);
-
-            var useJson = 
-                (configuration.JsonOptions == QueryableValuesJsonOptions.Auto && IsJsonSupported(sqlCommand.Connection)) ||
-                configuration.JsonOptions == QueryableValuesJsonOptions.Always;
 
             var entry = (InterceptedCommandData)Cache.Get(originalCommandText);
 
             if (entry is null)
             {
+                // todo:
+                // - The first execution will be used to detect if json is supported and will use XML
+                // - Next execution will use Json if it's supported (MUST drop previosuly cached SQL and recreate for Json)
+                // - Get Json supported flag per connection string (bool? IsJsonSupported(string))
+                // - Use the above to chose the appropiate serializer for the values in QueryableValuesDbContextExtensions
+
+                //var configuration = GetConfiguration(interceptionContext);
+                var useJson = false;
+                //(configuration.JsonOptions == QueryableValuesJsonOptions.Auto && IsJsonSupported(sqlCommand.Connection)) ||
+                //configuration.JsonOptions == QueryableValuesJsonOptions.Always;
+
+                var serializationFormat = useJson ? SerializationFormat.Json : SerializationFormat.Xml;
                 var sb = StringBuilderPool.Shared.Get();
 
                 try
                 {
-                    var xmlParameterNames = new HashSet<string>();
+                    var parameterNames = new HashSet<string>();
                     var matches = Regex1.Matches(originalCommandText);
                     var lastStartIndex = 0;
 
@@ -129,55 +199,26 @@ namespace BlazarTech.QueryableValues
                         if (match2.Success)
                         {
                             var topParameterName = match2.Groups["T"].Value;
-
                             var valueParameterName = match.Groups["V"].Value;
+                            var dataType = match.Groups["DT"].Value;
 
-                            xmlParameterNames.Add(valueParameterName);
+                            parameterNames.Add(valueParameterName);
 
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
                             sb.Append("SELECT ");
                             sb.Append("TOP (@").Append(topParameterName).Append(") ");
-                            sb.Append("I.value('. cast as xs:");
 
-                            var dataType = match.Groups["DT"].Value;
-                            string xmlType, sqlType;
-
-                            switch (dataType)
+                            switch (serializationFormat)
                             {
-                                case QueryTypeIdentifier.Byte:
-                                    xmlType = "unsignedByte";
-                                    sqlType = "tinyint";
+                                case SerializationFormat.Xml:
+                                    BuildSqlQueryFragmentForXml(sb, dataType, valueParameterName);
                                     break;
-                                case QueryTypeIdentifier.Short:
-                                    xmlType = "short";
-                                    sqlType = "smallint";
-                                    break;
-                                case QueryTypeIdentifier.Int:
-                                    xmlType = "integer";
-                                    sqlType = "int";
-                                    break;
-                                case QueryTypeIdentifier.Long:
-                                    xmlType = "integer";
-                                    sqlType = "bigint";
-                                    break;
-                                case QueryTypeIdentifier.String:
-                                    xmlType = "string";
-                                    sqlType = "varchar(max)";
-                                    break;
-                                case QueryTypeIdentifier.StringUnicode:
-                                    xmlType = "string";
-                                    sqlType = "nvarchar(max)";
-                                    break;
-                                case QueryTypeIdentifier.Guid:
-                                    xmlType = "string";
-                                    sqlType = "uniqueidentifier";
+                                case SerializationFormat.Json:
+                                    BuildSqlQueryFragmentForJson(sb, dataType, valueParameterName);
                                     break;
                                 default:
-                                    throw new NotImplementedException(dataType);
+                                    throw new NotImplementedException(nameof(serializationFormat));
                             }
-
-                            sb.Append(xmlType).Append("?', '").Append(sqlType);
-                            sb.Append("') AS [C1] FROM @").Append(valueParameterName).Append(".nodes('/R/V') N(I)");
 
                             lastStartIndex = match.Index + match.Length;
                         }
@@ -185,7 +226,7 @@ namespace BlazarTech.QueryableValues
 
                     sb.Append(originalCommandText.Substring(lastStartIndex));
 
-                    entry = new InterceptedCommandData(sb.ToString(), xmlParameterNames);
+                    entry = new InterceptedCommandData(sb.ToString(), parameterNames, serializationFormat);
                 }
                 finally
                 {
@@ -202,10 +243,20 @@ namespace BlazarTech.QueryableValues
 
             foreach (SqlParameter parameter in sqlCommand.Parameters)
             {
-                if (entry.XmlParameterNames.Contains(parameter.ParameterName))
+                if (entry.ParameterNames.Contains(parameter.ParameterName))
                 {
-                    parameter.SqlDbType = System.Data.SqlDbType.Xml;
-                    parameter.Size = -1;
+                    switch (entry.SerializationFormat)
+                    {
+                        case SerializationFormat.Xml:
+                            parameter.SqlDbType = System.Data.SqlDbType.Xml;
+                            parameter.Size = -1;
+                            break;
+                        case SerializationFormat.Json:
+                            // todo
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                 }
             }
 
@@ -242,13 +293,21 @@ namespace BlazarTech.QueryableValues
         private class InterceptedCommandData
         {
             public string CommandText { get; }
-            public HashSet<string> XmlParameterNames { get; }
+            public HashSet<string> ParameterNames { get; }
+            public SerializationFormat SerializationFormat { get; }
 
-            public InterceptedCommandData(string commandText, HashSet<string> xmlParameterNames)
+            public InterceptedCommandData(string commandText, HashSet<string> parameterNames, SerializationFormat serializationFormat)
             {
                 CommandText = commandText;
-                XmlParameterNames = xmlParameterNames;
+                ParameterNames = parameterNames;
+                SerializationFormat = serializationFormat;
             }
+        }
+
+        private enum SerializationFormat
+        {
+            Xml,
+            Json
         }
     }
 }
