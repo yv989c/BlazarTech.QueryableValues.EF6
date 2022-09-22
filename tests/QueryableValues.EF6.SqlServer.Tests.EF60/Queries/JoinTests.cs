@@ -32,7 +32,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         private static int[] GetExpected(bool isEmpty, params int[] expected)
         {
-            return isEmpty ? Array.Empty<int>() : expected;
+            return isEmpty ? TestUtil.ArrayEmptyInt32 : expected;
         }
 
         [Theory]

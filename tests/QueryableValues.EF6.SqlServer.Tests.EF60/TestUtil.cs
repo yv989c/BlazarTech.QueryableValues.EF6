@@ -6,6 +6,8 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
     public static class TestUtil
     {
+        public static readonly int[] ArrayEmptyInt32 = new int[0];
+
         public static List<T> ToList<T>(this IEnumerable<T> sequence, int capacity)
         {
             var list = new List<T>(capacity);

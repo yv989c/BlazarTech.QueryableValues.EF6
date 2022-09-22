@@ -32,7 +32,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         private static int[] GetExpected(bool isEmpty, params int[] expected)
         {
-            return isEmpty ? Array.Empty<int>() : expected;
+            return isEmpty ? TestUtil.ArrayEmptyInt32 : expected;
         }
 
         [Theory]
@@ -236,7 +236,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
         [MemberData(nameof(Data))]
         public void DocsExamples<T>(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
         {
-            IEnumerable<int> values = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(1, 4), withCount);
+            IEnumerable<int> values = isEmpty ? TestUtil.ArrayEmptyInt32 : GetSequence(Enumerable.Range(1, 4), withCount);
 
             using var dbContext = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
 
@@ -301,8 +301,8 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
             }
 
             {
-                IEnumerable<int> values1 = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(1, 2), withCount);
-                IEnumerable<int> values2 = isEmpty ? Array.Empty<int>() : GetSequence(Enumerable.Range(3, 2), withCount);
+                IEnumerable<int> values1 = isEmpty ? TestUtil.ArrayEmptyInt32 : GetSequence(Enumerable.Range(1, 2), withCount);
+                IEnumerable<int> values2 = isEmpty ? TestUtil.ArrayEmptyInt32 : GetSequence(Enumerable.Range(3, 2), withCount);
 
                 var qvQuery1 = dbContext.AsQueryableValues(values1);
                 var qvQuery2 = dbContext.AsQueryableValues(values2);

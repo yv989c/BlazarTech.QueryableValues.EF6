@@ -122,7 +122,11 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 
         public Task DisposeAsync()
         {
+#if NET452
+            return Task.Delay(0);
+#else
             return Task.CompletedTask;
+#endif
         }
     }
 
