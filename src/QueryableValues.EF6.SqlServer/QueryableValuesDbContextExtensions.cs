@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Interception;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace BlazarTech.QueryableValues
@@ -17,9 +18,12 @@ namespace BlazarTech.QueryableValues
     /// </remarks>
     public static class QueryableValuesDbContextExtensions
     {
-        internal const string InternalId = "⚡-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk-";
+        internal const string InternalId = "⚡-jDDd5B3uLYjJD9OnH1iEKtiHcaIcgo8VxoMN4vri0Rk";
 
-        private static readonly ConcurrentDictionary<Type, Type> DbSetByDbContext = new ConcurrentDictionary<Type, Type>();
+        private const string SerializationFormatXml = "-" + SerializationFormatIdentifier.Xml + "-";
+        private const string SerializationFormatJson = "-" + SerializationFormatIdentifier.Json + "-";
+
+        private static readonly ConcurrentDictionary<Type, Type> DbSetByDbContext = new();
 
         private static readonly Func<Type, Type> DbSetByDbContextFactory = dbContextType =>
         {
@@ -38,42 +42,93 @@ namespace BlazarTech.QueryableValues
             return entityType;
         };
 
-        private static readonly ISerializer Serializer = new XmlSerializer();
+        private static readonly ISerializer XmlSerializer = new XmlSerializer();
+        private static readonly ISerializer JsonSerializer = new JsonSerializer();
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<byte>> InnerQueryByte = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.Byte == serializedValues
-            select (byte)1;
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<byte>> InnerQueryByte = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.Byte == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.Byte == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<short>> InnerQueryShort = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.Short == serializedValues
-            select (short)1;
+            return queryable.Select(i => (byte)1);
+        };
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<int>> InnerQueryInt = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.Int == serializedValues
-            select 1;
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<short>> InnerQueryShort = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.Short == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.Short == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<long>> InnerQueryLong = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.Long == serializedValues
-            select 1L;
+            return queryable.Select(i => (short)1);
+        };
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<string>> InnerQueryString = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.String == serializedValues
-            select "";
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<string>> InnerQueryStringUnicode = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.StringUnicode == serializedValues
-            select "";
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<int>> InnerQueryInt = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.Int == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.Int == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
 
-        private static readonly Func<IQueryable<object>, string, IQueryable<Guid>> InnerQueryGuid = (dbSet, serializedValues) =>
-            from i in dbSet
-            where InternalId + QueryTypeIdentifier.Guid == serializedValues
-            select Guid.Empty;
+            return queryable.Select(i => 1);
+        };
+
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<long>> InnerQueryLong = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.Long == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.Long == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
+
+            return queryable.Select(i => 1L);
+        };
+
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<string>> InnerQueryString = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.String == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.String == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
+
+            return queryable.Select(i => "");
+        };
+
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<string>> InnerQueryStringUnicode = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.StringUnicode == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.StringUnicode == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
+
+            return queryable.Select(i => "");
+        };
+
+        private static readonly Func<IQueryable<object>, string, SerializationFormat, IQueryable<Guid>> InnerQueryGuid = (dbSet, serializedValues, serializationFormat) =>
+        {
+            var queryable = serializationFormat switch
+            {
+                SerializationFormat.Xml => dbSet.Where(i => InternalId + SerializationFormatXml + QueryTypeIdentifier.Guid == serializedValues),
+                SerializationFormat.Json => dbSet.Where(i => InternalId + SerializationFormatJson + QueryTypeIdentifier.Guid == serializedValues),
+                _ => throw new NotImplementedException(),
+            };
+
+            return queryable.Select(i => ((Guid?)null!).Value);
+        };
 
         static QueryableValuesDbContextExtensions()
         {
@@ -83,12 +138,13 @@ namespace BlazarTech.QueryableValues
         private static IQueryable<T> AsQueryableValues<T>(
             DbContext dbContext,
             string serializedValues,
+            SerializationFormat serializationFormat,
             int valuesCount,
-            Func<IQueryable<object>, string, IQueryable<T>> getInnerQuery)
+            Func<IQueryable<object>, string, SerializationFormat, IQueryable<T>> getInnerQuery)
         {
             var entityType = DbSetByDbContext.GetOrAdd(dbContext.GetType(), DbSetByDbContextFactory);
             var dbSet = (IQueryable<object>)dbContext.Set(entityType);
-            var innerQuery = getInnerQuery(dbSet, serializedValues);
+            var innerQuery = getInnerQuery(dbSet, serializedValues, serializationFormat);
             var query = innerQuery.Take(() => valuesCount);
             return query;
         }
@@ -113,6 +169,30 @@ namespace BlazarTech.QueryableValues
             }
         }
 
+        private static ISerializer GetSerializer(DbContext dbContext)
+        {
+            if (dbContext.Database.Connection is SqlConnection connection)
+            {
+                var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
+                var useJson =
+                    configuration.JsonOptions == QueryableValuesJsonOptions.Always ||
+                    (configuration.JsonOptions == QueryableValuesJsonOptions.Auto && DbUtil.IsJsonSupported(connection));
+
+                if (useJson)
+                {
+                    return JsonSerializer;
+                }
+                else
+                {
+                    return XmlSerializer;
+                }
+            }
+            else
+            {
+                throw Util.NewOnlyWorksWithSqlServerException();
+            }
+        }
+
         /// <summary>
         /// Allows an <see cref="IEnumerable{Byte}">IEnumerable&lt;byte&gt;</see> to be composed in an Entity Framework query.
         /// </summary>
@@ -126,7 +206,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryByte);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), InnerQueryByte);
         }
 
         /// <summary>
@@ -142,7 +225,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryShort);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), InnerQueryShort);
         }
 
         /// <summary>
@@ -158,7 +244,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryInt);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), InnerQueryInt);
         }
 
         /// <summary>
@@ -174,7 +263,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryLong);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), InnerQueryLong);
         }
 
         /// <summary>
@@ -197,7 +289,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), isUnicode ? InnerQueryStringUnicode : InnerQueryString);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), isUnicode ? InnerQueryStringUnicode : InnerQueryString);
         }
 
         /// <summary>
@@ -213,7 +308,10 @@ namespace BlazarTech.QueryableValues
         {
             ThrowIfNull(dbContext, nameof(dbContext));
             ThrowIfNull(values, nameof(values));
-            return AsQueryableValues(dbContext, Serializer.Serialize(values), GetCount(values), InnerQueryGuid);
+
+            var serializer = GetSerializer(dbContext);
+
+            return AsQueryableValues(dbContext, serializer.Serialize(values), serializer.Format, GetCount(values), InnerQueryGuid);
         }
     }
 }

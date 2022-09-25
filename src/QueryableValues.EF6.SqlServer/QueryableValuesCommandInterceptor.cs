@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -21,76 +20,8 @@ namespace BlazarTech.QueryableValues
                 { "CacheMemoryLimitMegabytes", "10" }
             });
 
-        private static readonly Regex Regex1 = new(@"'" + QueryableValuesDbContextExtensions.InternalId + @"(?<DT>[a-z\-]{3,})'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex Regex1 = new(@"'" + QueryableValuesDbContextExtensions.InternalId + /*lang=regex*/@"\-(?<F>[a-zA-Z]+)\-(?<DT>[a-zA-Z]+)'\s*=\s*@(?<V>.+?)(?:\)\s*AND\s*\(.+?\))?(?=\s*\))", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex Regex2 = new(@"SELECT\s+TOP\s+\(\s*@(?<T>.+?)\s*\)", RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
-
-        private static readonly ConcurrentDictionary<string, bool> JsonSupportByDb = new();
-
-        private static bool IsJsonSupported(SqlConnection connection)
-        {
-#if NET472_OR_GREATER || NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            return JsonSupportByDb.GetOrAdd(connection.ConnectionString, isJsonSupported, connection);
-#else
-            return JsonSupportByDb.GetOrAdd(connection.ConnectionString, key => isJsonSupported(key, connection));
-#endif
-
-            static bool isJsonSupported(string key, SqlConnection connection)
-            {
-                var majorVersionNumber = getMajorVersionNumber(connection.ServerVersion);
-
-                // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
-                if (majorVersionNumber >= 13)
-                {
-                    try
-                    {
-                        using var cm = new SqlCommand("SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()", connection);
-                        var compatibilityLevel = Convert.ToInt32(cm.ExecuteScalar());
-                        return compatibilityLevel >= 130;
-                    }
-                    catch (Exception ex)
-                    {
-                        Util.TraceError(nameof(IsJsonSupported), ex);
-                    }
-                }
-
-                return false;
-            }
-
-            static int getMajorVersionNumber(string? serverVersion)
-            {
-                if (serverVersion != null)
-                {
-                    var index = serverVersion.IndexOf('.');
-
-                    if (index >= 0)
-                    {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-                        var substring = serverVersion.AsSpan()[..index];
-#else
-                        var substring = serverVersion.Substring(0, index);
-#endif
-                        if (int.TryParse(substring, out int majorVersionNumber))
-                        {
-                            return majorVersionNumber;
-                        }
-                    }
-                }
-
-                return 0;
-            }
-        }
-
-        private static IQueryableValuesConfiguration GetConfiguration(DbCommandInterceptionContext interceptionContext)
-        {
-            if (interceptionContext.DbContexts.FirstOrDefault()?.GetType() is Type dbContextType)
-            {
-                return QueryableValuesConfigurator.GetConfiguration(dbContextType);
-            }
-            else
-            {
-                return QueryableValuesConfigurator.DefaultConfiguration;
-            }
-        }
 
         private static void BuildSqlQueryFragmentForXml(StringBuilder sb, string dataType, string valueParameterName)
         {
@@ -166,30 +97,18 @@ namespace BlazarTech.QueryableValues
 
             if (command is not SqlCommand sqlCommand)
             {
-                throw new InvalidOperationException("QueryableValues only works with a SQL Server provider.");
+                throw Util.NewOnlyWorksWithSqlServerException();
             }
 
             var entry = (InterceptedCommandData)Cache.Get(originalCommandText);
 
             if (entry is null)
             {
-                // todo:
-                // - The first execution will be used to detect if json is supported and will use XML
-                // - Next execution will use Json if it's supported (MUST drop previosuly cached SQL and recreate for Json)
-                // - Get Json supported flag per connection string (bool? IsJsonSupported(string))
-                // - Use the above to chose the appropiate serializer for the values in QueryableValuesDbContextExtensions
-
-                //var configuration = GetConfiguration(interceptionContext);
-                var useJson = false;
-                //(configuration.JsonOptions == QueryableValuesJsonOptions.Auto && IsJsonSupported(sqlCommand.Connection)) ||
-                //configuration.JsonOptions == QueryableValuesJsonOptions.Always;
-
-                var serializationFormat = useJson ? SerializationFormat.Json : SerializationFormat.Xml;
                 var sb = StringBuilderPool.Shared.Get();
 
                 try
                 {
-                    var parameterNames = new HashSet<string>();
+                    var parameters = new Dictionary<string, SerializationFormat>();
                     var matches = Regex1.Matches(originalCommandText);
                     var lastStartIndex = 0;
 
@@ -198,13 +117,24 @@ namespace BlazarTech.QueryableValues
                         var match2 = Regex2.Match(originalCommandText, match.Index);
                         if (match2.Success)
                         {
-                            var topParameterName = match2.Groups["T"].Value;
                             var valueParameterName = match.Groups["V"].Value;
                             var dataType = match.Groups["DT"].Value;
+                            var topParameterName = match2.Groups["T"].Value;
 
-                            parameterNames.Add(valueParameterName);
+                            var serializationFormat = match.Groups["F"].Value switch
+                            {
+                                SerializationFormatIdentifier.Xml => SerializationFormat.Xml,
+                                SerializationFormatIdentifier.Json => SerializationFormat.Json,
+                                _ => throw new NotImplementedException(),
+                            };
 
+                            parameters.Add(valueParameterName, serializationFormat);
+
+#if NET452 || NET472
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
+#else
+                            sb.Append(originalCommandText.AsSpan(lastStartIndex, match2.Index - lastStartIndex));
+#endif
                             sb.Append("SELECT ");
                             sb.Append("TOP (@").Append(topParameterName).Append(") ");
 
@@ -224,9 +154,13 @@ namespace BlazarTech.QueryableValues
                         }
                     }
 
+#if NET452 || NET472
                     sb.Append(originalCommandText.Substring(lastStartIndex));
+#else
+                    sb.Append(originalCommandText.AsSpan(lastStartIndex));
+#endif
 
-                    entry = new InterceptedCommandData(sb.ToString(), parameterNames, serializationFormat);
+                    entry = new InterceptedCommandData(sb.ToString(), parameters);
                 }
                 finally
                 {
@@ -243,20 +177,15 @@ namespace BlazarTech.QueryableValues
 
             foreach (SqlParameter parameter in sqlCommand.Parameters)
             {
-                if (entry.ParameterNames.Contains(parameter.ParameterName))
+                if (entry.Parameters.TryGetValue(parameter.ParameterName, out SerializationFormat serializationFormat))
                 {
-                    switch (entry.SerializationFormat)
+                    if (serializationFormat == SerializationFormat.Xml)
                     {
-                        case SerializationFormat.Xml:
-                            parameter.SqlDbType = System.Data.SqlDbType.Xml;
-                            parameter.Size = -1;
-                            break;
-                        case SerializationFormat.Json:
-                            // todo
-                            break;
-                        default:
-                            throw new NotImplementedException();
+                        parameter.SqlDbType = SqlDbType.Xml;
                     }
+
+                    // max
+                    parameter.Size = -1;
                 }
             }
 
@@ -293,21 +222,13 @@ namespace BlazarTech.QueryableValues
         private class InterceptedCommandData
         {
             public string CommandText { get; }
-            public HashSet<string> ParameterNames { get; }
-            public SerializationFormat SerializationFormat { get; }
+            public Dictionary<string, SerializationFormat> Parameters { get; }
 
-            public InterceptedCommandData(string commandText, HashSet<string> parameterNames, SerializationFormat serializationFormat)
+            public InterceptedCommandData(string commandText, Dictionary<string, SerializationFormat> parameters)
             {
                 CommandText = commandText;
-                ParameterNames = parameterNames;
-                SerializationFormat = serializationFormat;
+                Parameters = parameters;
             }
-        }
-
-        private enum SerializationFormat
-        {
-            Xml,
-            Json
         }
     }
 }

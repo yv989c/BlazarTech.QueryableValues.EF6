@@ -5,6 +5,7 @@ namespace BlazarTech.QueryableValues.Serializers
 {
     internal interface ISerializer
     {
+        SerializationFormat Format { get; }
         string Serialize(IEnumerable<byte> values);
         string Serialize(IEnumerable<short> values);
         string Serialize(IEnumerable<int> values);

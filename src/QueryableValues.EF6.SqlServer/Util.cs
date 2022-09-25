@@ -14,5 +14,10 @@ namespace BlazarTech.QueryableValues
         {
             Trace.TraceError($"QueryableValues: {message}: {exception?.GetType().Name}: {exception?.Message}");
         }
+
+        public static InvalidOperationException NewOnlyWorksWithSqlServerException()
+        {
+            return new InvalidOperationException("QueryableValues only works with a SQL Server provider.");
+        }
     }
 }

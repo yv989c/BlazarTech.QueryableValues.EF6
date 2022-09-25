@@ -2,12 +2,12 @@
 {
     internal static class QueryTypeIdentifier
     {
-        public const string Byte = "byte";
-        public const string Short = "short";
-        public const string Int = "int";
-        public const string Long = "long";
-        public const string String = "string";
-        public const string StringUnicode = "string-unicode";
-        public const string Guid = "guid";
+        public const string Byte = "Byte";
+        public const string Short = "Short";
+        public const string Int = "Int";
+        public const string Long = "Long";
+        public const string String = "String";
+        public const string StringUnicode = "StringUnicode";
+        public const string Guid = "Guid";
     }
 }
