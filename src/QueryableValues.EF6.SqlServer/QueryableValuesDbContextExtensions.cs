@@ -175,8 +175,8 @@ namespace BlazarTech.QueryableValues
             {
                 var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
                 var useJson =
-                    configuration.JsonOptions == QueryableValuesJsonOptions.Always ||
-                    (configuration.JsonOptions == QueryableValuesJsonOptions.Auto && DbUtil.IsJsonSupported(connection));
+                    configuration.JsonSerializationOptions == QueryableValuesJsonSerializationOptions.Always ||
+                    (configuration.JsonSerializationOptions == QueryableValuesJsonSerializationOptions.Auto && DbUtil.IsJsonSupported(connection));
 
                 if (useJson)
                 {

@@ -2,6 +2,6 @@
 {
     internal interface IQueryableValuesConfiguration
     {
-        internal QueryableValuesJsonOptions JsonOptions { get; }
+        internal QueryableValuesJsonSerializationOptions JsonSerializationOptions { get; }
     }
 }
