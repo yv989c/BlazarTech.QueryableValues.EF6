@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="DbContextFixture.cs" />
     <Compile Include="DbUtil.cs" />
+    <Compile Include="Configuration\UseJsonSerializationTests.cs" />
     <Compile Include="InfrastructureTests.cs" />
     <Compile Include="ITestDbContext.cs" />
     <Compile Include="Queries\ContainsTests.cs" />

@@ -4,10 +4,11 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
     internal static class DbUtil
     {
-        public static string GetConnectionString(bool useDatabaseFirst)
+        public static string GetConnectionString(bool useDatabaseFirst, string databaseNameSuffix = "Tests")
         {
-            var databaseFilePath = Path.Combine(Path.GetTempPath(), $"QueryableValues.EF6.Tests.mdf");
-            var connectionString = @$"Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Connection Timeout=190;Database=QueryableValues.EF6.Tests;AttachDbFileName={databaseFilePath}";
+            var databaseName = $"QueryableValues.EF6.{databaseNameSuffix}";
+            var databaseFilePath = Path.Combine(Path.GetTempPath(), $"{databaseName}.mdf");
+            var connectionString = @$"Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Connection Timeout=190;Database={databaseName};AttachDbFileName={databaseFilePath}";
 
             if (useDatabaseFirst)
             {
