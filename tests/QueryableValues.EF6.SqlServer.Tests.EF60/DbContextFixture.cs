@@ -15,7 +15,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
         {
             CodeFirstDb = TestDbContext.Create();
             DatabaseFirstDb = DatabaseFirst.TestDbContext.Create();
-            CodeFirstDbCompatLevel120 = new TestDbContext(DbUtil.GetConnectionString(false, databaseNameSuffix: "TestsCompatLevel120"));
+            CodeFirstDbCompatLevel120 = TestDbContext.Create(useCompat120: true);
         }
 
         public void Dispose()

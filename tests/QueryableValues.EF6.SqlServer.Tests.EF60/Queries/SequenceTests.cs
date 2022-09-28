@@ -20,6 +20,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
                 var useDatabaseNullSemanticsOptions = new[] { false, true };
                 var numberOfElementsOptions = new[] { 0, 6, 1000 };
                 var withCountOptions = new[] { false, true };
+                var useCompat120DbOptions = new[] { false, true };
 
                 foreach (var useDatabaseFirstOption in useDatabaseFirstOptions)
                 {
@@ -29,7 +30,15 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
                         {
                             foreach (var withCountOption in withCountOptions)
                             {
-                                yield return new object[] { useDatabaseFirstOption, useDatabaseNullSemanticsOption, numberOfElementsOption, withCountOption };
+                                foreach (var useCompat120DbOption in useCompat120DbOptions)
+                                {
+                                    if (useCompat120DbOption && useDatabaseFirstOption)
+                                    {
+                                        continue;
+                                    }
+
+                                    yield return new object[] { useCompat120DbOption, useDatabaseFirstOption, useDatabaseNullSemanticsOption, numberOfElementsOption, withCountOption };
+                                }
                             }
                         }
                     }
@@ -43,9 +52,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Byte(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task Byte(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfByte(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -53,9 +62,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int16(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task Int16(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfInt16(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -63,9 +72,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int32(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task Int32(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfInt32(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -73,9 +82,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Int64(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task Int64(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfInt64(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);
@@ -83,9 +92,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task String(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task String(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, false);
             var result = await db.AsQueryableValues(sequence, isUnicode: false).ToListAsync();
             Assert.Equal(sequence, result);
@@ -93,9 +102,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task StringUnicode(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task StringUnicode(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfString(numberOfElements, withCount, true);
             var result = await db.AsQueryableValues(sequence, isUnicode: true).ToListAsync();
             Assert.Equal(sequence, result);
@@ -103,9 +112,9 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
 
         [Theory]
         [MemberData(nameof(Data))]
-        public async Task Guid(bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
+        public async Task Guid(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, int numberOfElements, bool withCount)
         {
-            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics);
+            using var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120);
             var sequence = TestUtil.GetSequenceOfGuid(numberOfElements, withCount);
             var result = await db.AsQueryableValues(sequence).ToListAsync();
             Assert.Equal(sequence, result);

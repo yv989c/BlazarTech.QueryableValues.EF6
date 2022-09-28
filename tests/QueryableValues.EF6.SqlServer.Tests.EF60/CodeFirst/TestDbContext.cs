@@ -11,9 +11,13 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.CodeFirst
             Database.SetInitializer<TestDbContext>(null);
         }
 
-        public static TestDbContext Create(bool useDatabaseNullSemantics = false)
+        public static TestDbContext Create(bool useDatabaseNullSemantics = false, bool useCompat120 = false)
         {
-            return new TestDbContext(DbUtil.GetConnectionString(false))
+            var cs = useCompat120 ?
+                DbUtil.GetConnectionString(false, databaseNameSuffix: "TestsCompatLevel120") :
+                DbUtil.GetConnectionString(false);
+
+            return new TestDbContext(cs)
             {
                 Configuration =
                 {

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
@@ -20,11 +21,16 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
-        public static ITestDbContextWithSauce CreateDbContext(bool useDatabaseFirst, bool useDatabaseNullSemantics)
+        public static ITestDbContextWithSauce CreateDbContext(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool useCompat120 = false)
         {
+            if (useDatabaseFirst && useCompat120)
+            {
+                throw new InvalidOperationException();
+            }
+
             var dbContext = useDatabaseFirst ?
                 (ITestDbContextWithSauce)DatabaseFirst.TestDbContext.Create(useDatabaseNullSemantics) :
-                CodeFirst.TestDbContext.Create(useDatabaseNullSemantics);
+                CodeFirst.TestDbContext.Create(useDatabaseNullSemantics, useCompat120: useCompat120);
 
             return dbContext;
         }
