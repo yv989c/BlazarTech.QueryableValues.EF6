@@ -142,7 +142,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
-        public static IEnumerable<(bool UseDatabaseFirst, bool UseDatabaseNullSemantics, bool IsEmpty, bool WithCount)> GetTestDataOptions()
+        public static IEnumerable<(bool UseCompat120, bool UseDatabaseFirst, bool UseDatabaseNullSemantics, bool IsEmpty, bool WithCount)> GetTestDataOptions()
         {
 #if NET5_0_OR_GREATER
             var useDatabaseFirstOptions = new[] { false };
@@ -152,6 +152,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             var useDatabaseNullSemanticsOptions = new[] { false, true };
             var isEmptyOptions = new[] { false, true };
             var withCountOptions = new[] { false, true };
+            var useCompat120DbOptions = new[] { false, true };
 
             foreach (var useDatabaseFirstOption in useDatabaseFirstOptions)
             {
@@ -161,7 +162,15 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                     {
                         foreach (var withCountOption in withCountOptions)
                         {
-                            yield return (useDatabaseFirstOption, useDatabaseNullSemanticsOption, isEmptyOption, withCountOption);
+                            foreach (var useCompat120DbOption in useCompat120DbOptions)
+                            {
+                                if (useCompat120DbOption && useDatabaseFirstOption)
+                                {
+                                    continue;
+                                }
+
+                                yield return (useCompat120DbOption, useDatabaseFirstOption, useDatabaseNullSemanticsOption, isEmptyOption, withCountOption);
+                            }
                         }
                     }
                 }
