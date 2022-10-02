@@ -5,7 +5,7 @@ using Xunit;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
-    public class DbContextFixture : IDisposable, IAsyncLifetime
+    public sealed class DbContextFixture : IDisposable, IAsyncLifetime
     {
         public TestDbContext CodeFirstDb { get; }
         public DatabaseFirst.TestDbContext DatabaseFirstDb { get; }
@@ -23,6 +23,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             CodeFirstDb.Dispose();
             DatabaseFirstDb.Dispose();
             CodeFirstDbCompatLevel120.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public async Task InitializeAsync()
@@ -54,12 +55,12 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 
                     try
                     {
-                        await cm.Connection.OpenAsync();
+                        await cm.Connection!.OpenAsync();
                         await cm.ExecuteNonQueryAsync();
                     }
                     finally
                     {
-                        cm.Connection.Close();
+                        cm.Connection!.Close();
                     }
 
                     Console.WriteLine($"CompatLevel120 DB Created ({sw.ElapsedMilliseconds}ms)");
@@ -75,7 +76,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
-        private async Task Seed(ITestDbContext testDbContext)
+        private static async Task Seed(ITestDbContext testDbContext)
         {
             var dateTimeOffset = new DateTimeOffset(1999, 12, 31, 23, 59, 59, 0, TimeSpan.FromHours(5));
 
