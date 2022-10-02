@@ -9,11 +9,12 @@ namespace BlazarTech.QueryableValues
     /// </summary>
     public static class QueryableValuesConfigurator
     {
-        private static readonly ConcurrentDictionary<Type, QueryableValuesConfigurationBuilder> ConfigurationByDbContextType = new ConcurrentDictionary<Type, QueryableValuesConfigurationBuilder>();
-        private static readonly object BuilderByDbContextTypeAddLock = new object();
-        private static readonly QueryableValuesConfigurationBuilder DefaultConfigurationBuilder = QueryableValuesConfigurationBuilder.Create();
+        private static readonly ConcurrentDictionary<Type, QueryableValuesConfigurationBuilder> ConfigurationByDbContextType = new();
+        private static readonly object BuilderByDbContextTypeAddLock = new();
 
-        internal static IQueryableValuesConfiguration DefaultConfiguration => DefaultConfigurationBuilder;
+        private static QueryableValuesConfigurationBuilder _defaultConfigurationBuilder = QueryableValuesConfigurationBuilder.Create();
+
+        internal static IQueryableValuesConfiguration DefaultConfiguration => _defaultConfigurationBuilder;
 
         private static QueryableValuesConfigurationBuilder GetOrCreateBuilder(Type dbContextType)
         {
@@ -35,10 +36,13 @@ namespace BlazarTech.QueryableValues
         /// <summary>
         /// Gets the default configuration builder.
         /// </summary>
+        /// <remarks>
+        /// This configuration applies to any <see cref="DbContext"/> that doesn't have an explicit configuration via <see cref="Configure{TDbContext}"/>.
+        /// </remarks>
         /// <returns>A <see cref="QueryableValuesConfigurationBuilder"/> that implements a fluent API.</returns>
         public static QueryableValuesConfigurationBuilder Configure()
         {
-            return DefaultConfigurationBuilder;
+            return _defaultConfigurationBuilder;
         }
 
         /// <summary>
@@ -62,6 +66,12 @@ namespace BlazarTech.QueryableValues
             {
                 return DefaultConfiguration;
             }
+        }
+
+        internal static void Reset()
+        {
+            _defaultConfigurationBuilder = QueryableValuesConfigurationBuilder.Create();
+            ConfigurationByDbContextType.Clear();
         }
     }
 }

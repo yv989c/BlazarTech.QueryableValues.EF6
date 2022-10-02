@@ -61,4 +61,12 @@
   <ItemGroup Condition="'$(TargetFramework)'!='net452'">
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF60" />
+    <InternalsVisibleTo Include="BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF61" />
+    <InternalsVisibleTo Include="BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF62" />
+    <InternalsVisibleTo Include="BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF63" />
+    <InternalsVisibleTo Include="BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF64" />
+  </ItemGroup>
 </Project>

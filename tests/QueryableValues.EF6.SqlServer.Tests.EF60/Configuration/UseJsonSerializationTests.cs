@@ -47,27 +47,39 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
             }
         }
 
-        [Fact]
-        public async Task UsesXmlSerializationAlways()
+        static void ConfigureUseJsonSerialization(bool useConfigureDbContext, QueryableValuesJsonSerializationOptions options)
+        {
+            if (useConfigureDbContext)
+            {
+                QueryableValuesConfigurator
+                    .Configure<CodeFirst.TestDbContext>()
+                    .UseJsonSerialization(options);
+            }
+            else
+            {
+                QueryableValuesConfigurator
+                    .Configure()
+                    .UseJsonSerialization(options);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UsesXmlSerializationAlways(bool useConfigureDbContext)
         {
             var interceptor = new TestInterceptor(expectsXml: true);
 
             try
             {
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Never);
-
+                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Never);
                 DbInterception.Add(interceptor);
                 await SequenceAssertion(_dbContextFixture.CodeFirstDb);
             }
             finally
             {
                 DbInterception.Remove(interceptor);
-
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Auto);
+                QueryableValuesConfigurator.Reset();
             }
         }
 
@@ -87,41 +99,36 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
             }
         }
 
-        [Fact]
-        public async Task UsesJsonSerializationAlways()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UsesJsonSerializationAlways(bool useConfigureDbContext)
         {
             var interceptor = new TestInterceptor(expectsJson: true);
 
             try
             {
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Always);
-
+                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Always);
                 DbInterception.Add(interceptor);
                 await SequenceAssertion(_dbContextFixture.CodeFirstDb);
             }
             finally
             {
                 DbInterception.Remove(interceptor);
-
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Auto);
+                QueryableValuesConfigurator.Reset();
             }
         }
 
-        [Fact]
-        public async Task UsesJsonSerializationAlwaysOnUnsupportedEnvironment()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UsesJsonSerializationAlwaysOnUnsupportedEnvironment(bool useConfigureDbContext)
         {
             var interceptor = new TestInterceptor(expectsJson: true);
 
             try
             {
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Always);
-
+                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Always);
                 DbInterception.Add(interceptor);
 
                 var entityCommandExecutionException = await Assert.ThrowsAnyAsync<EntityCommandExecutionException>(async () =>
@@ -134,10 +141,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
             finally
             {
                 DbInterception.Remove(interceptor);
-
-                QueryableValuesConfigurator
-                    .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(QueryableValuesJsonSerializationOptions.Auto);
+                QueryableValuesConfigurator.Reset();
             }
         }
 
