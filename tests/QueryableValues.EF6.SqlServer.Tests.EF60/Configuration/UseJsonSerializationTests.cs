@@ -47,19 +47,19 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
             }
         }
 
-        static void ConfigureUseJsonSerialization(bool useConfigureDbContext, QueryableValuesJsonSerializationOptions options)
+        static void ConfigureUseJsonSerialization(bool useConfigureDbContext, SerializationOptions options)
         {
             if (useConfigureDbContext)
             {
                 QueryableValuesConfigurator
                     .Configure<CodeFirst.TestDbContext>()
-                    .UseJsonSerialization(options);
+                    .Serialization(options);
             }
             else
             {
                 QueryableValuesConfigurator
                     .Configure()
-                    .UseJsonSerialization(options);
+                    .Serialization(options);
             }
         }
 
@@ -72,7 +72,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
 
             try
             {
-                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Never);
+                ConfigureUseJsonSerialization(useConfigureDbContext, SerializationOptions.UseXml);
                 DbInterception.Add(interceptor);
                 await SequenceAssertion(_dbContextFixture.CodeFirstDb);
             }
@@ -108,7 +108,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
 
             try
             {
-                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Always);
+                ConfigureUseJsonSerialization(useConfigureDbContext, SerializationOptions.UseJson);
                 DbInterception.Add(interceptor);
                 await SequenceAssertion(_dbContextFixture.CodeFirstDb);
             }
@@ -128,7 +128,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Configuration
 
             try
             {
-                ConfigureUseJsonSerialization(useConfigureDbContext, QueryableValuesJsonSerializationOptions.Always);
+                ConfigureUseJsonSerialization(useConfigureDbContext, SerializationOptions.UseJson);
                 DbInterception.Add(interceptor);
 
                 var entityCommandExecutionException = await Assert.ThrowsAnyAsync<EntityCommandExecutionException>(async () =>
