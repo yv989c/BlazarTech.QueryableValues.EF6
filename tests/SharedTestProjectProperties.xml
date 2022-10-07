@@ -10,5 +10,8 @@
 		<Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\Queries\**\*.cs">
 			<Link>Queries\%(RecursiveDir)\%(FileName)%(Extension)</Link>
 		</Compile>
+    <Compile Include="..\QueryableValues.EF6.SqlServer.Tests.EF60\Configuration\**\*.cs">
+      <Link>Configuration\%(RecursiveDir)\%(FileName)%(Extension)</Link>
+    </Compile>
 	</ItemGroup>
 </Project>
