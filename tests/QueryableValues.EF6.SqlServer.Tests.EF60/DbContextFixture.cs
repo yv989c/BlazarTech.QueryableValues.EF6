@@ -5,38 +5,78 @@ using Xunit;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
-    public class DbContextFixture : IDisposable, IAsyncLifetime
+    public sealed class DbContextFixture : IDisposable, IAsyncLifetime
     {
         public TestDbContext CodeFirstDb { get; }
         public DatabaseFirst.TestDbContext DatabaseFirstDb { get; }
+        public TestDbContext CodeFirstDbCompatLevel120 { get; }
 
         public DbContextFixture()
         {
             CodeFirstDb = TestDbContext.Create();
             DatabaseFirstDb = DatabaseFirst.TestDbContext.Create();
+            CodeFirstDbCompatLevel120 = TestDbContext.Create(useCompat120: true);
         }
 
         public void Dispose()
         {
             CodeFirstDb.Dispose();
             DatabaseFirstDb.Dispose();
+            CodeFirstDbCompatLevel120.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public async Task InitializeAsync()
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
+
             Console.WriteLine("Creating DB...");
             CodeFirstDb.Database.Delete();
             CodeFirstDb.Database.Create();
             Console.WriteLine($"DB Created ({sw.ElapsedMilliseconds}ms)");
 
             sw.Restart();
+
             Console.WriteLine("Seeding DB...");
-            await Seed();
+            await Seed(CodeFirstDb);
             Console.WriteLine($"DB Seeded ({sw.ElapsedMilliseconds}ms)");
+
+            sw.Restart();
+
+            {
+                Console.WriteLine("Creating CompatLevel120 DB...");
+                var wasCreated = CodeFirstDbCompatLevel120.Database.CreateIfNotExists();
+
+                if (wasCreated)
+                {
+                    var databaseName = CodeFirstDbCompatLevel120.Database.Connection.Database;
+                    var cm = CodeFirstDbCompatLevel120.Database.Connection.CreateCommand();
+                    cm.CommandText = $"ALTER DATABASE [{databaseName}] SET COMPATIBILITY_LEVEL = 120";
+
+                    try
+                    {
+                        await cm.Connection!.OpenAsync();
+                        await cm.ExecuteNonQueryAsync();
+                    }
+                    finally
+                    {
+                        cm.Connection!.Close();
+                    }
+
+                    Console.WriteLine($"CompatLevel120 DB Created ({sw.ElapsedMilliseconds}ms)");
+
+                    Console.WriteLine("Seeding CompatLevel120 DB...");
+                    await Seed(CodeFirstDbCompatLevel120);
+                    Console.WriteLine($"CompatLevel120 DB Seeded ({sw.ElapsedMilliseconds}ms)");
+                }
+                else
+                {
+                    Console.WriteLine($"CompatLevel120 DB Created Already ({sw.ElapsedMilliseconds}ms)");
+                }
+            }
         }
 
-        private async Task Seed()
+        private static async Task Seed(ITestDbContext testDbContext)
         {
             var dateTimeOffset = new DateTimeOffset(1999, 12, 31, 23, 59, 59, 0, TimeSpan.FromHours(5));
 
@@ -115,14 +155,18 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                 }
             };
 
-            CodeFirstDb.TestData.AddRange(data);
+            testDbContext.TestData.AddRange(data);
 
-            await CodeFirstDb.SaveChangesAsync();
+            await testDbContext.SaveChangesAsync();
         }
 
         public Task DisposeAsync()
         {
+#if NET452
+            return Task.Delay(0);
+#else
             return Task.CompletedTask;
+#endif
         }
     }
 

@@ -43,6 +43,8 @@ using BlazarTech.QueryableValues;
 
 > 💡 If you access your [DbContext] via an interface, you can also make the `AsQueryableValues` extension methods available on it by inheriting from the `IQueryableValuesEnabledDbContext` interface.
 
+> 💡 You can configure the behavior of QueryableValues `EF6 Edition` by using the `QueryableValuesConfigurator` class.
+
 Below are a few examples composing a query using the values provided by an [IEnumerable&lt;T&gt;].
 
 ### Examples

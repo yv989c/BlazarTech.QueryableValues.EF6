@@ -1,13 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
 {
     internal static class DbUtil
     {
-        public static string GetConnectionString(bool useDatabaseFirst)
+        public static string GetConnectionString(bool useDatabaseFirst, string databaseNameSuffix = "Tests")
         {
-            var databaseFilePath = Path.Combine(Path.GetTempPath(), $"QueryableValues.EF6.Tests.mdf");
-            var connectionString = @$"Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Connection Timeout=190;Database=QueryableValues.EF6.Tests;AttachDbFileName={databaseFilePath}";
+            var databaseName = $"QueryableValues.EF6.{databaseNameSuffix}";
+            var databaseFilePath = Path.Combine(Path.GetTempPath(), $"{databaseName}.mdf");
+            var connectionString = @$"Server=(localdb)\MSSQLLocalDB;Integrated Security=true;Connection Timeout=190;Database={databaseName};AttachDbFileName={databaseFilePath}";
 
             if (useDatabaseFirst)
             {
@@ -19,11 +21,16 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
             }
         }
 
-        public static ITestDbContextWithSauce CreateDbContext(bool useDatabaseFirst, bool useDatabaseNullSemantics)
+        public static ITestDbContextWithSauce CreateDbContext(bool useDatabaseFirst, bool useDatabaseNullSemantics, bool useCompat120 = false)
         {
+            if (useDatabaseFirst && useCompat120)
+            {
+                throw new InvalidOperationException();
+            }
+
             var dbContext = useDatabaseFirst ?
                 (ITestDbContextWithSauce)DatabaseFirst.TestDbContext.Create(useDatabaseNullSemantics) :
-                CodeFirst.TestDbContext.Create(useDatabaseNullSemantics);
+                CodeFirst.TestDbContext.Create(useDatabaseNullSemantics, useCompat120: useCompat120);
 
             return dbContext;
         }

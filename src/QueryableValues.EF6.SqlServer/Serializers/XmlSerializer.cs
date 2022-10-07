@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 
-#if NETSTANDARD2_1_OR_GREATER || NET472_OR_GREATER || NET
+#if NET472_OR_GREATER || NETSTANDARD2_1_OR_GREATER || NET
 using Microsoft.Extensions.ObjectPool;
 #endif
 
@@ -16,9 +16,7 @@ namespace BlazarTech.QueryableValues.Serializers
         private const int ValueBufferLength = 128;
 
         private static readonly char[] EmptyCharArray = new char[0];
-
         private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
-
         private static readonly ArrayPool<char> BufferPool = ArrayPool<char>.Shared;
 
         private static readonly Func<IEnumerable<byte>, string> GetXmlByte = (IEnumerable<byte> values) => GetXml(values, WriteValue, 3);
@@ -31,6 +29,8 @@ namespace BlazarTech.QueryableValues.Serializers
         private static readonly Func<IEnumerable<DateTime>, string> GetXmlDateTime = (IEnumerable<DateTime> values) => GetXml(values, WriteValue, 27);
         private static readonly Func<IEnumerable<DateTimeOffset>, string> GetXmlDateTimeOffset = (IEnumerable<DateTimeOffset> values) => GetXml(values, WriteValue, 33);
         private static readonly Func<IEnumerable<Guid>, string> GetXmlGuid = (IEnumerable<Guid> values) => GetXml(values, WriteValue, 36);
+
+        public SerializationFormat Format => SerializationFormat.Xml;
 
         private sealed class WriterHelper : IDisposable
         {
