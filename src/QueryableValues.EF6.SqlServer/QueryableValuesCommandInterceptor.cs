@@ -127,8 +127,11 @@ namespace BlazarTech.QueryableValues
                                 SerializationFormatIdentifier.Json => SerializationFormat.Json,
                                 _ => throw new NotImplementedException(),
                             };
-
-                            parameters.Add(valueParameterName, serializationFormat);
+                            
+                            if (!parameters.ContainsKey(valueParameterName))
+                            {
+                                parameters.Add(valueParameterName, serializationFormat);
+                            }
 
 #if NET452 || NET472
                             sb.Append(originalCommandText.Substring(lastStartIndex, match2.Index - lastStartIndex));
