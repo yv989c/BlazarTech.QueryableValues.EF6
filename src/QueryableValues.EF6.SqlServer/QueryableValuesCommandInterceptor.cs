@@ -128,13 +128,13 @@ namespace BlazarTech.QueryableValues
                                 _ => throw new NotImplementedException(),
                             };
 
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-                            parameters.TryAdd(valueParameterName, serializationFormat);
-#else
+#if NET452 || NET472
                             if (!parameters.ContainsKey(valueParameterName))
                             {
                                 parameters.Add(valueParameterName, serializationFormat);
-                            }
+                            }                            
+#else
+                            parameters.TryAdd(valueParameterName, serializationFormat);
 #endif
 
 #if NET452 || NET472
