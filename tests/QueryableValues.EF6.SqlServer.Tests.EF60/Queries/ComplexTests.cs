@@ -131,7 +131,6 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
             }
         }
 
-
         [Theory]
         [MemberData(nameof(Data))]
         public async Task Complex3(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
@@ -206,6 +205,57 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests.Queries
                     .ToListAsync();
 
                 var expected = GetExpected(isEmpty, 4, 2);
+
+                Assert.Equal(expected, result);
+            }
+
+            IEnumerable<string> getSequenceString()
+            {
+                if (isEmpty)
+                {
+                    yield break;
+                }
+
+                yield return "你好！";
+                yield return "👋";
+            }
+
+            IEnumerable<int> getSequenceInt32()
+            {
+                if (isEmpty)
+                {
+                    yield break;
+                }
+
+                yield return 123;
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public async Task Complex5(bool useCompat120, bool useDatabaseFirst, bool useDatabaseNullSemantics, bool withCount, bool isEmpty)
+        {
+            using (var db = DbUtil.CreateDbContext(useDatabaseFirst, useDatabaseNullSemantics, useCompat120: useCompat120))
+            {
+                var sequenceStringUnicode = GetSequence(getSequenceString(), withCount);
+                var qvStringUnicode = db.AsQueryableValues(sequenceStringUnicode, isUnicode: true);
+
+                var sequenceInt32 = GetSequence(getSequenceInt32(), withCount);
+                var qvInt32 = db.AsQueryableValues(sequenceInt32);
+
+                var query =
+                    from e in db.TestData
+                    where qvStringUnicode.Contains(e.StringUnicodeValue) || qvInt32.Contains(e.Int32Value)
+                    select e;
+
+                var result = await query
+                    .GroupBy(x => new { x.Int32Value })
+                    .OrderByDescending(g => g.Key.Int32Value)
+                    .Select(g => g.FirstOrDefault().Id)
+                    .OrderBy(i => i)
+                    .ToListAsync();
+
+                var expected = GetExpected(isEmpty, 1, 2, 4);
 
                 Assert.Equal(expected, result);
             }
