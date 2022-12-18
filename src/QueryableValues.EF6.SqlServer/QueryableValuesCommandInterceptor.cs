@@ -95,7 +95,7 @@ namespace BlazarTech.QueryableValues
                 return;
             }
 
-            if (command is not SqlCommand sqlCommand)
+            if (command.Connection is not SqlConnection)
             {
                 throw Util.NewOnlyWorksWithSqlServerException();
             }
@@ -182,7 +182,7 @@ namespace BlazarTech.QueryableValues
                 Cache.Add(originalCommandText, entry, cachePolicy);
             }
 
-            foreach (SqlParameter parameter in sqlCommand.Parameters)
+            foreach (SqlParameter parameter in command.Parameters)
             {
                 if (entry.Parameters.TryGetValue(parameter.ParameterName, out SerializationFormat serializationFormat))
                 {
@@ -196,7 +196,7 @@ namespace BlazarTech.QueryableValues
                 }
             }
 
-            sqlCommand.CommandText = entry.CommandText;
+            command.CommandText = entry.CommandText;
         }
 
         public void NonQueryExecuted(DbCommand command, DbCommandInterceptionContext<int> interceptionContext)
