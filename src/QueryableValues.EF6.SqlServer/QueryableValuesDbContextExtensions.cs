@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Interception;
-using System.Data.SqlClient;
 using System.Linq;
 
 namespace BlazarTech.QueryableValues
@@ -176,25 +175,18 @@ namespace BlazarTech.QueryableValues
 
         private static ISerializer GetSerializer(DbContext dbContext)
         {
-            if (dbContext.Database.Connection is SqlConnection connection)
-            {
-                var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
-                var useJson =
-                    configuration.SerializationOptions == SerializationOptions.UseJson ||
-                    (configuration.SerializationOptions == SerializationOptions.Auto && DbUtil.IsJsonSupported(connection));
+            var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
+            var useJson =
+                configuration.SerializationOptions == SerializationOptions.UseJson ||
+                (configuration.SerializationOptions == SerializationOptions.Auto && DbUtil.IsJsonSupported(dbContext.Database.Connection));
 
-                if (useJson)
-                {
-                    return JsonSerializer;
-                }
-                else
-                {
-                    return XmlSerializer;
-                }
+            if (useJson)
+            {
+                return JsonSerializer;
             }
             else
             {
-                throw Util.NewOnlyWorksWithSqlServerException();
+                return XmlSerializer;
             }
         }
 
