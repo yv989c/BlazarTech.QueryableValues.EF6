@@ -30,16 +30,21 @@ namespace BlazarTech.QueryableValues
             var entityType = dbContextType
                 .GetProperties()
                 .Select(i => i.PropertyType)
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(DbSet<>))
+                .Where(i => i.IsGenericType && isDbSet(i.GetGenericTypeDefinition()))
                 .Select(i => i.GenericTypeArguments[0])
                 .FirstOrDefault();
 
             if (entityType is null)
             {
-                throw new InvalidOperationException("QueryableValues only works on a DbContext with at least one public DbSet<>.");
+                throw new InvalidOperationException("QueryableValues only works on a DbContext with at least one public DbSet<> or IDbSet<>.");
             }
 
             return entityType;
+
+            static bool isDbSet(Type type)
+            {
+                return type == typeof(DbSet<>) || type == typeof(IDbSet<>);
+            }
         };
 
         private static readonly ISerializer XmlSerializer = new XmlSerializer();
