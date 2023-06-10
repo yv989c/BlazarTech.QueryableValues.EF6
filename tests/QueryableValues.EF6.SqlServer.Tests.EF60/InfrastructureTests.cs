@@ -16,7 +16,7 @@ namespace BlazarTech.QueryableValues.EF6.SqlServer.Tests
                 _ = db.AsQueryableValues(new[] { 1 }).ToList();
             });
 
-            Assert.Contains("QueryableValues only works on a DbContext with at least one public DbSet<>.", exception.Message);
+            Assert.Contains("QueryableValues only works on a DbContext with at least one public DbSet<> or IDbSet<>.", exception.Message);
         }
 
         [Fact]

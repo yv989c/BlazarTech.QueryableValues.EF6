@@ -95,11 +95,6 @@ namespace BlazarTech.QueryableValues
                 return;
             }
 
-            if (command.Connection is not SqlConnection)
-            {
-                throw Util.NewOnlyWorksWithSqlServerException();
-            }
-
             var entry = (InterceptedCommandData)Cache.Get(originalCommandText);
 
             if (entry is null)
@@ -182,8 +177,15 @@ namespace BlazarTech.QueryableValues
                 Cache.Add(originalCommandText, entry, cachePolicy);
             }
 
-            foreach (SqlParameter parameter in command.Parameters)
+            foreach (DbParameter parameterObj in command.Parameters)
             {
+                if (parameterObj is null)
+                {
+                    continue;
+                }
+
+                var parameter = parameterObj as SqlParameter ?? throw Util.NewOnlyWorksWithSqlServerException();
+
                 if (entry.Parameters.TryGetValue(parameter.ParameterName, out SerializationFormat serializationFormat))
                 {
                     if (serializationFormat == SerializationFormat.Xml)

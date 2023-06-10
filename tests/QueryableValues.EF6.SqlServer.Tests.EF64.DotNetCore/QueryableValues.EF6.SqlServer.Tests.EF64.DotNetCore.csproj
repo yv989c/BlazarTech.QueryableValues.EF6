@@ -3,7 +3,7 @@
 	<Import Project="..\SharedTestProjectProperties.xml" />
 
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net6.0</TargetFrameworks>
 		<RootNamespace>BlazarTech.QueryableValues.EF6.SqlServer.Tests</RootNamespace>
 		<AssemblyName>BlazarTech.QueryableValues.EF6.SqlServer.Tests.EF64</AssemblyName>
 		<Nullable>enable</Nullable>
