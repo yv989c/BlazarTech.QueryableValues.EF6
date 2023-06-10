@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Interception;
-using System.Data.SqlClient;
 using System.Linq;
 
 namespace BlazarTech.QueryableValues
@@ -30,16 +29,21 @@ namespace BlazarTech.QueryableValues
             var entityType = dbContextType
                 .GetProperties()
                 .Select(i => i.PropertyType)
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(DbSet<>))
+                .Where(i => i.IsGenericType && isDbSet(i.GetGenericTypeDefinition()))
                 .Select(i => i.GenericTypeArguments[0])
                 .FirstOrDefault();
 
             if (entityType is null)
             {
-                throw new InvalidOperationException("QueryableValues only works on a DbContext with at least one public DbSet<>.");
+                throw new InvalidOperationException("QueryableValues only works on a DbContext with at least one public DbSet<> or IDbSet<>.");
             }
 
             return entityType;
+
+            static bool isDbSet(Type type)
+            {
+                return type == typeof(DbSet<>) || type == typeof(IDbSet<>);
+            }
         };
 
         private static readonly ISerializer XmlSerializer = new XmlSerializer();
@@ -171,25 +175,18 @@ namespace BlazarTech.QueryableValues
 
         private static ISerializer GetSerializer(DbContext dbContext)
         {
-            if (dbContext.Database.Connection is SqlConnection connection)
-            {
-                var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
-                var useJson =
-                    configuration.SerializationOptions == SerializationOptions.UseJson ||
-                    (configuration.SerializationOptions == SerializationOptions.Auto && DbUtil.IsJsonSupported(connection));
+            var configuration = QueryableValuesConfigurator.GetConfiguration(dbContext.GetType());
+            var useJson =
+                configuration.SerializationOptions == SerializationOptions.UseJson ||
+                (configuration.SerializationOptions == SerializationOptions.Auto && DbUtil.IsJsonSupported(dbContext.Database.Connection));
 
-                if (useJson)
-                {
-                    return JsonSerializer;
-                }
-                else
-                {
-                    return XmlSerializer;
-                }
+            if (useJson)
+            {
+                return JsonSerializer;
             }
             else
             {
-                throw Util.NewOnlyWorksWithSqlServerException();
+                return XmlSerializer;
             }
         }
 

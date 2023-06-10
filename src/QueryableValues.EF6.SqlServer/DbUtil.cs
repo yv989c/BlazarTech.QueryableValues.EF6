@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Data.SqlClient;
+using System.Data.Common;
 
 namespace BlazarTech.QueryableValues
 {
@@ -15,14 +15,14 @@ namespace BlazarTech.QueryableValues
         /// <remarks>
         /// The result is cached on a per connection string fashion.
         /// </remarks>
-        public static bool IsJsonSupported(SqlConnection connection)
+        public static bool IsJsonSupported(DbConnection connection)
         {
 #if NET452
             return JsonSupportByConnectionString.GetOrAdd(connection.ConnectionString, key => isJsonSupported(key, connection));
 #else
             return JsonSupportByConnectionString.GetOrAdd(connection.ConnectionString, isJsonSupported, connection);
 #endif
-            static bool isJsonSupported(string key, SqlConnection connection)
+            static bool isJsonSupported(string key, DbConnection connection)
             {
                 try
                 {
@@ -41,7 +41,8 @@ namespace BlazarTech.QueryableValues
                         // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
                         if (majorVersionNumber >= 13)
                         {
-                            using var cm = new SqlCommand("SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()", connection);
+                            using var cm = connection.CreateCommand();
+                            cm.CommandText = "SELECT [compatibility_level] FROM [sys].[databases] WHERE [database_id] = DB_ID()";
                             var compatibilityLevel = Convert.ToInt32(cm.ExecuteScalar());
                             return compatibilityLevel >= 130;
                         }

@@ -4,9 +4,15 @@
 [![GitHub Stars](https://badgen.net/github/stars/yv989c/BlazarTech.QueryableValues.EF6?icon=github)][Repository]
 [![Nuget Downloads](https://badgen.net/nuget/dt/BlazarTech.QueryableValues.EF6.SqlServer?icon=nuget)][NuGet Package]
 
-This library allows you to efficiently compose an [IEnumerable&lt;T&gt;] in your [Entity Framework 6] (non-core) queries when using the [SQL Server Provider]. This is accomplished by using the `AsQueryableValues` extension method available on the [DbContext] class. Everything is evaluated on the server with a single round trip, in a way that preserves the query's [execution plan], even when the values behind the [IEnumerable&lt;T&gt;] are changed on subsequent executions.
+> 🤔💭 TLDR; By using QueryableValues, you can incorporate in-memory collections into your EF queries with outstanding performance and flexibility.
 
-The supported types for `T` are: [Byte], [Int16], [Int32], [Int64], [Guid], and [String].
+This library allows you to efficiently compose an [IEnumerable&lt;T&gt;] in your [Entity Framework 6] (non-core) queries when using the [SQL Server Provider]. You can accomplish this by using the `AsQueryableValues` extension method that's available on the [DbContext] class. The query is processed in a single round trip to the server, in a way that preserves its [execution plan], even when the values within the [IEnumerable&lt;T&gt;] are changed on subsequent executions. The supported types for `T` are: [Byte], [Int16], [Int32], [Int64], [Guid], and [String].
+
+**Highlights**
+- ✨ Enables the composition of in-memory data within your queries.
+- 👌 Works with all versions of SQL Server supported by [Entity Framework 6].
+- ⚡ Automatically uses the most efficient strategy compatible with your SQL Server instance and configuration.
+- ✅ Boasts over 700 tests for reliability and compatibility, giving you added confidence.
 
 For a detailed explanation of the problem solved by QueryableValues, please continue reading [here][readme-background].
 
@@ -15,7 +21,7 @@ For a detailed explanation of the problem solved by QueryableValues, please cont
 > 💡 Using Entity Framework Core? Then [the original version][QueryableValuesEFCoreRepository] of QueryableValues is what you need.
 
 ## When Should You Use It?
-The `AsQueryableValues` extension method is intended for queries that are dependent upon a *non-constant* sequence of external values. In such cases, the underlying SQL query will be efficient on subsequent executions.
+The `AsQueryableValues` extension method is intended for queries that are dependent upon a *non-constant* sequence of external values. It also enables joins with in-memory data.
 
 ## Your Support is Appreciated!
 If you feel that this solution has provided you some value, please consider [buying me a ☕][BuyMeACoffee].
